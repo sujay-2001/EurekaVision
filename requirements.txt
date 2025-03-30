@@ -1,0 +1,6 @@
+numpy
+gymnasium
+matplotlib
+openai
+pyyaml
+stable-baselines3

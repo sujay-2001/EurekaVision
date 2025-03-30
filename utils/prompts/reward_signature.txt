@@ -1,0 +1,3 @@
+    def compute_reward(self, states: np.ndarray, actions:np.ndarray, terminated:bool) -> float:
+    ...
+    return reward

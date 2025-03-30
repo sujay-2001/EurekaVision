@@ -1,0 +1,30 @@
+### Description
+The Mountain Car MDP is a deterministic MDP that consists of a car placed stochastically
+    at the bottom of a sinusoidal valley, with the only possible actions being the accelerations
+    that can be applied to the car in either direction. The goal of the MDP is to strategically
+    accelerate the car to reach the goal state on top of the right hill. There are two versions
+    of the mountain car domain in gym: one with discrete actions and one with continuous.
+    This version is the one with continuous actions.
+
+    This MDP first appeared in [Andrew Moore's PhD Thesis (1990)](https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-209.pdf)
+
+    ```
+    @TECHREPORT{Moore90efficientmemory-based,
+        author = {Andrew William Moore},
+        title = {Efficient Memory-based Learning for Robot Control},
+        institution = {University of Cambridge},
+        year = {1990}
+    }
+    ```
+
+### Action Space
+The action is a `ndarray` with shape `(1,)`, representing the directional force applied on the car.
+    The action is clipped in the range `[-1,1]` and multiplied by a power of 0.0015.
+
+### Observation Space
+The observation is a `ndarray` with shape `(2,)` where the elements correspond to the following:
+
+    | Num | Observation                          | Min  | Max | Unit         |
+    |-----|--------------------------------------|------|-----|--------------|
+    | 0   | position of the car along the x-axis | -Inf | Inf | position (m) |
+    | 1   | velocity of the car                  | -Inf | Inf | position (m) |

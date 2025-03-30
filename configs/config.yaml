@@ -1,0 +1,27 @@
+# This is the configuration file for the Eureka++ framework.
+task: 'Acrobot'
+env: 'acrobot'
+iteration: 1
+sample: 1
+
+# LLM Agents parameters
+# The coder agent is used to generate code based on the feedback from the feedback agent.
+models:
+  coder_agent: 'gemma3:4b'
+  coder_config:
+    temperature: 0.6
+    suffix: 'gemma'
+  feedback_agent: 'gemma3:4b'
+  feedback_config:
+    temperature: 0.5
+    suffix: 'gemma3'
+
+rl:
+  train_type: 'PPO'
+  training_steps: 100000
+  save_model: true
+  save_path: './models'
+  seed: 21
+
+
+

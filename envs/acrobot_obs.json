@@ -1,0 +1,58 @@
+{
+    "Description": "The system consists of two links connected linearly to form a chain, with one end of the chain fixed. The joint between the two links is actuated. The goal is to apply torques on the actuated joint to swing the free end of the linear chain above a given height while starting from the initial state of hanging downwards.",
+    "Action Space": [
+        {
+            "num": 0,
+            "action": "apply -1 torque to the actuated joint",
+            "unit": "torque (N m)"
+        },
+        {
+            "num": 1,
+            "action": "apply 0 torque to the actuated joint",
+            "unit": "torque (N m)"
+        },
+        {
+            "num": 2,
+            "action": "apply 1 torque to the actuated joint",
+            "unit": "torque (N m)"
+        }
+    ],
+    "Observation Space": [
+        {
+            "num": 0,
+            "observation": "Cosine of `theta1`",
+            "min": "-1",
+            "max": "1"
+        },
+        {
+            "num": 1,
+            "observation": "Sine of `theta1`",
+            "min": "-1",
+            "max": "1"
+        },
+        {
+            "num": 2,
+            "observation": "Cosine of `theta2`",
+            "min": "-1",
+            "max": "1"
+        },
+        {
+            "num": 3,
+            "observation": "Sine of `theta2`",
+            "min": "-1",
+            "max": "1"
+        },
+        {
+            "num": 4,
+            "observation": "Angular velocity of `theta1`",
+            "min": "~ -12.567 (-4 * pi)",
+            "max": "~ 12.567 (4 * pi)"
+        },
+        {
+            "num": 5,
+            "observation": "Angular velocity of `theta2`",
+            "min": "~ -28.274 (-9 * pi)",
+            "max": "~ 28.274 (9 * pi)"
+        }
+    ]
+}

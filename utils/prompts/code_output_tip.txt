@@ -1,0 +1,10 @@
+Your response should only contain the reward function (as provided in the reward signature) alone and not with the class definition.
+The output of the reward function should consist of the total reward, but for computing the final reward, you can introduce individual reward components.
+The code output should be formatted as a python code string: "```python ... ```".
+
+Some helpful tips for writing the reward function code:
+    (1) Make sure that you index and access the right state and action from the states, actions arrays respectively using the provided information
+    (2) You can use the terminated boolean variable to know if the episode has ended or not, and assign reward accordingly
+    (2) You may find it helpful to normalize the reward to a fixed range by applying transformations like np.exp to the overall reward or its components
+    (3) Make sure the type of each input variable is correctly specified; 
+    (4) Most importantly, the reward code should contain only input variables that are derived from the provided inputs-states, actions and terminated. Don't use any variables with self. with assimptions. Under no circumstance can you introduce new input variables.

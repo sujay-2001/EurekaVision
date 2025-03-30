@@ -202,7 +202,7 @@ def main(cfg):
             command = [
                 sys.executable, '-u', f'{EUREKA_ROOT_DIR}/utils/train.py',
                 f'--model_name={cfg.rl.train_type}',
-                f'--env_module_path={EUREKA_ROOT_DIR}\envs\{env_name}_{suffix.lower()}.py',
+                f'--env_module_path={EUREKA_ROOT_DIR}/envs/{env_name}_{suffix.lower()}.py',
                 f'--env_module_name={env_name}_{suffix.lower()}',
                 f'--env_class_name={cfg.task}Env',
                 f'--save_model={cfg.rl.save_model}',

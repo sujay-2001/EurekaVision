@@ -63,7 +63,6 @@ def main(cfg):
     #create_task(ISAAC_ROOT_DIR, cfg.env.task, cfg.env.env_name, suffix)
 
     DUMMY_FAILURE = -10000.
-    max_score = float('-inf')
     best_response_id = -1
     max_successes = []
     max_successes_reward_correlation = []
@@ -85,6 +84,7 @@ def main(cfg):
         total_token = 0
         total_completion_token = 0
         chunk_size = 1
+        max_score = float('-inf')
 
         logging.info(f"Iteration {iter}: Generating {cfg.sample} samples with {cfg.models.coder_agent}")
 

@@ -294,7 +294,8 @@ def main(cfg):
             summary_path = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_{j+1}_Summary/summary.txt"
             summary = f"Episode {j+1} evaluation metrics:\n" + file_to_string(summary_path)
         feedback_prompt = feedback_prompt.format(env=env_name, task_description=task_description, summary=summary)
-        images = [encode_image(image_path) for image_path in os.listdir(f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_1_Summary") if image_path.endswith('.png')]
+        images_dir = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_1_Summary"
+        images = [encode_image(os.path.join(images_dir,image_path)) for image_path in os.listdir(images_dir) if image_path.endswith('.png')]
         feedback_messages = [{"role": "system", "content": feedback_agent_system}, {"role": "user", "content": feedback_prompt, "images": images}]
         for attempt in range(1000):
             try:
@@ -333,6 +334,8 @@ def main(cfg):
         
         scores.append(max_score)
     
+    logging.info("Eureka process completed.")
+    logging.info("Scores: " + str(scores))
     plot_result(scores)
 
         

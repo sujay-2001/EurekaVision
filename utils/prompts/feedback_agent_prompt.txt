@@ -1,3 +1,2 @@
 Environment: {env}, Task Description: {task_description}
-Episode {ep} evaluation metrics:
 {summary}

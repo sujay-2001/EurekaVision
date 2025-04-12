@@ -50,17 +50,20 @@ def load_blip_model():
     model = Blip2ForImageTextRetrieval.from_pretrained("Salesforce/blip2-itm-vit-g", torch_dtype=torch.float16)
     processor = AutoProcessor.from_pretrained("Salesforce/blip2-itm-vit-g")
     model.to(device)
-    model = model.float()
     return model, processor
 
 def compute_vision_alignment_score(model, processor, frames_dir, env, batch_size=128):
     """
     Compute the vision alignment score for the given frames using the BLIP model.
+    
+    This version assumes that the model is in float16 precision. 
+    The inference is wrapped with torch.cuda.amp.autocast() to enforce half precision computation.
     """
-    # Load the frames from the specified directory
+    # Load the frames from the specified directory.
     frames = get_frames(frames_dir)
     env = env.lower()
     texts = [env_description[env]["goal"], env_description[env]["baseline"]]
+    
     # Initialize accumulators for probabilities.
     total_goal_prob = 0.0
     total_baseline_prob = 0.0
@@ -76,28 +79,29 @@ def compute_vision_alignment_score(model, processor, frames_dir, env, batch_size
 
             # Process the batch.
             inputs = processor(text=texts, images=batch_images, return_tensors="pt", padding=True).to(device)
+            
+            # Use AMP autocast context manager to ensure float16 precision computations.
+            with torch.cuda.amp.autocast(enabled=True, dtype=torch.float16):
+                itm_out = model(**inputs)
+                logits_per_image = itm_out.logits_per_image
 
-            # Forward pass.
-            itm_out = model(**inputs)
-            logits_per_image = itm_out.logits_per_image
-
-            # Calculate probabilities.
-            probs = logits_per_image.softmax(dim=1)
+                # Calculate probabilities.
+                probs = logits_per_image.softmax(dim=1)
 
             # Accumulate results.
             total_goal_prob += probs[:, 0].sum().item()
             total_baseline_prob += probs[:, 1].sum().item()
 
-            # Free up GPU memory used by intermediate variables
+            # Free up GPU memory used by intermediate variables.
             del itm_out, logits_per_image, probs, inputs
             torch.cuda.empty_cache()
-
 
     # Compute the averages by dividing by the total number of images.
     goal_prob_avg = total_goal_prob / len(frames)
     baseline_prob_avg = total_baseline_prob / len(frames)
     
-    score = math.log(SCORE_CONSTANT*(goal_prob_avg - baseline_prob_avg)) if goal_prob_avg > baseline_prob_avg else 0.0
+    # Compute the final score.
+    score = math.log(SCORE_CONSTANT * (goal_prob_avg - baseline_prob_avg)) if goal_prob_avg > baseline_prob_avg else 0.0
     
     return score, goal_prob_avg, baseline_prob_avg
 

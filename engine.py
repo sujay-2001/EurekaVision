@@ -323,6 +323,7 @@ def main(cfg):
         if response_cur is None:
             logging.info("Terminating due to too many failed attempts!")
             exit()
+        response_cur = response_cur.get("message", {})
         feedback = response_cur["content"]
         
         # Feedback to coding LLM

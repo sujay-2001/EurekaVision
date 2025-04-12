@@ -106,6 +106,7 @@ class PendulumEnv(gym.Env):
         self.screen = None
         self.clock = None
         self.isopen = True
+        self.reward_components = None
 
         high = np.array([1.0, 1.0, self.max_speed], dtype=np.float32)
         # This will throw a warning in tests/envs/test_envs in utils/env_checker.py as the space is not symmetric
@@ -134,7 +135,8 @@ class PendulumEnv(gym.Env):
         self.state = np.array([newth, newthdot])
         states = self._get_obs()
         actions = np.array([u])
-        reward = self.compute_reward(states, actions)
+        reward, reward_components = self.compute_reward(states, actions)
+        self.reward_components = reward_components
 
         if self.render_mode == "human":
             self.render()
@@ -274,7 +276,7 @@ class PendulumEnv(gym.Env):
         th = angle_normalize(th)
         u = actions[0]
         reward = -(th**2 + 0.1 * thdot**2 + 0.001 * u**2)
-        return reward
+        return reward, {}
 
 def angle_normalize(x):
     return ((x + np.pi) % (2 * np.pi)) - np.pi

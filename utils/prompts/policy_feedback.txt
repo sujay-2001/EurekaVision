@@ -1,1 +1,6 @@
-We trained a RL policy using the provided reward function code and tracked the values of the individual components in the reward function as well as global policy metrics such as success rates and episode lengths after every {epoch_freq} epochs and the maximum, mean, minimum values encountered:
+We trained an RL policy using the provided reward function code and the feedback from the Evaluator agent with evaluated RL metrics in order to improve the reward function.
+Current reward function:
+{reward function}
+Feedback:
+Visual Goal Alignment Score: {score}\n
+{feedback}

@@ -4,7 +4,7 @@ Copied from http://incompleteideas.net/sutton/book/code/pole.c
 permalink: https://perma.cc/C9ZM-652R
 """
 import math
-from typing import Optional, Union
+from typing import Optional, Union, Tuple, Dict
 
 import numpy as np
 import gymnasium as gym
@@ -123,6 +123,7 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.clock = None
         self.isopen = True
         self.state = None
+        self.reward_components = None
 
         self.steps_beyond_terminated = None
 
@@ -166,10 +167,12 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         )
         states = np.array(self.state, dtype=np.float32)
         actions = np.array(action, dtype=np.int32)
-        reward = self.compute_reward(states, actions, terminated)
+        reward, reward_components = self.compute_reward(states, actions, terminated)
+        self.reward_components = reward_components
         
         if self.render_mode == "human":
             self.render()
+        
         return states, reward, terminated, False, {}
 
     def reset(
@@ -313,4 +316,4 @@ class CartPoleEnv(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                 )
             self.steps_beyond_terminated += 1
             reward = 0.0
-        return reward
+        return reward, {}

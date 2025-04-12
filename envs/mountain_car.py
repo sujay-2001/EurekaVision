@@ -120,6 +120,7 @@ class MountainCarEnv(gym.Env):
         self.screen = None
         self.clock = None
         self.isopen = True
+        self.reward_components = None
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(self.low, self.high, dtype=np.float32)
@@ -143,7 +144,8 @@ class MountainCarEnv(gym.Env):
         self.state = (position, velocity)
         states = np.array(self.state, dtype=np.float32)
         actions = np.array(action, dtype=np.int32)
-        reward = self.compute_reward(states, actions, terminated)
+        reward, reward_components = self.compute_reward(states, actions, terminated)
+        self.reward_components = reward_components
         if self.render_mode == "human":
             self.render()
         return states, reward, terminated, False, {}
@@ -284,4 +286,4 @@ class MountainCarEnv(gym.Env):
     
     def compute_reward(self, states: np.ndarray, actions:np.ndarray, terminated:Optional[bool] = None):
         reward = -1.0
-        return reward
+        return reward, {}

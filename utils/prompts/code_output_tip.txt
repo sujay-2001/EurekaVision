@@ -1,5 +1,5 @@
 Your response should only contain the reward function (as provided in the reward signature) alone and not with the class definition.
-The output of the reward function should consist of the total reward, but for computing the final reward, you can introduce individual reward components.
+The output of the reward function should consist of two items: (1) the total reward, (2) a dictionary of each individual reward component.
 The code output should be formatted as a python code string: "```python ... ```".
 
 Some helpful tips for writing the reward function code:

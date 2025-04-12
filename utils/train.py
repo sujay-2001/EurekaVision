@@ -145,9 +145,10 @@ def main(_):
 
     # Start training the environment.
     logging.info("Starting training with agent %s", FLAGS.model_name)
+    agent = FLAGS.model_name.split("_")[0]
     _train_env(
         env=env_instance, 
-        agent=FLAGS.model_name, 
+        agent=agent, 
         save_model=FLAGS.save_model, 
         save_path=os.path.join(FLAGS.save_path, FLAGS.model_name), 
         total_timesteps=FLAGS.training_steps

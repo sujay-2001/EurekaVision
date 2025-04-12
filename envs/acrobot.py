@@ -177,6 +177,7 @@ class AcrobotEnv(core.Env):
         self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
         self.action_space = spaces.Discrete(3)
         self.state = None
+        self.reward_components = None
 
     def reset(self, *, seed: Optional[int] = None, options: Optional[dict] = None):
         super().reset(seed=seed)
@@ -218,7 +219,8 @@ class AcrobotEnv(core.Env):
         terminated = self._terminal()
         states = self._get_ob() 
         actions = np.array([action], dtype=np.float32)
-        reward = self.compute_reward(states, actions, terminated)
+        reward, reward_components = self.compute_reward(states, actions, terminated)
+        self.reward_components = reward_components
 
         if self.render_mode == "human":
             self.render()
@@ -378,7 +380,7 @@ class AcrobotEnv(core.Env):
 
     def compute_reward(self, states: np.ndarray, actions:np.ndarray, terminated:bool):
         reward = -1.0 if not terminated else 0.0
-        return reward
+        return reward, {}
 
 
 def wrap(x, m, M):

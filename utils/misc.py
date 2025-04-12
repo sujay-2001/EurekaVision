@@ -1,6 +1,9 @@
 import re
 import json
 import os
+import base64
+from pathlib import Path
+import matplotlib.pyplot as plt
 
 def file_to_string(filename):
     with open(filename, 'r') as file:            
@@ -11,6 +14,19 @@ def file_to_string(filename):
             # Read the file as plain text
             return file.read()
 
+def encode_image(image_path):
+    return base64.b64encode(Path(image_path).read_bytes()).decode('utf-8')
+
+def plot_result(scores):
+    plt.figure()
+    plt.plot(scores)
+    plt.xlabel("Iteration")
+    plt.ylabel("Visual Task Alignment Score")
+    plt.title("Visual Task Alignment Score vs Iteration")
+    plt.grid(True)
+    plt.savefig("eureka_result.png")
+    plt.close()
+    
 def extract_section(text, section_name):
     """
     Extracts the section content for a given section name.

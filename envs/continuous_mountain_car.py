@@ -131,6 +131,7 @@ class Continuous_MountainCarEnv(gym.Env):
         self.screen = None
         self.clock = None
         self.isopen = True
+        self.reward_components = None
 
         self.action_space = spaces.Box(
             low=self.min_action, high=self.max_action, shape=(1,), dtype=np.float32
@@ -166,7 +167,8 @@ class Continuous_MountainCarEnv(gym.Env):
         self.state = np.array([position, velocity], dtype=np.float32)
         states = self.state
         actions = action
-        reward = self.compute_reward(states, actions, terminated)
+        reward, reward_components = self.compute_reward(states, actions, terminated)
+        self.reward_components = reward_components
 
         if self.render_mode == "human":
             self.render()
@@ -303,4 +305,4 @@ class Continuous_MountainCarEnv(gym.Env):
             reward = 100.0
         reward -= math.pow(actions[0], 2) * 0.1  
 
-        return reward
+        return reward, {}

@@ -1,5 +1,5 @@
 Please carefully analyze the policy feedback and provide a new, improved reward function that can better solve the task. Some helpful tips for analyzing the policy feedback:
-    (1) If the success rates are always near zero, then you must rewrite the entire reward function
+    (1) If the vision goal alignment score is near zero, then you must rewrite the entire reward function
     (2) If the values for a certain reward component are near identical throughout, then this means RL is not able to optimize this component as it is written. You may consider
         (a) Changing its scale or the value of its temperature parameter
         (b) Re-writing the reward component 

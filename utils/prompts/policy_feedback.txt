@@ -1,6 +1,6 @@
 We trained an RL policy using the provided reward function code and the feedback from the Evaluator agent with evaluated RL metrics in order to improve the reward function.
 Current reward function:
-{reward function}
+{reward_function}
 Feedback:
 Visual Goal Alignment Score: {score}\n
 {feedback}

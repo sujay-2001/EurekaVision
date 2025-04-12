@@ -2,5 +2,5 @@ We trained an RL policy using the provided reward function code and the feedback
 Current reward function:
 {reward_function}
 Feedback:
-Visual Goal Alignment Score: {score}\n
+Visual Goal Alignment Score: {score}
 {feedback}

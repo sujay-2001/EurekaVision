@@ -323,10 +323,14 @@ def main(cfg):
             exit()
         response_cur = response_cur.get("message", {})
         feedback = response_cur["content"]
+
+        with open(f"env_iter{iter}_response{best_response_id}_feedback.txt", 'w') as file:
+            file.writelines(feedback + '\n')
         
         # Feedback to coding LLM
         cur_reward_function = file_to_string(filename=f"env_iter{iter}_response{best_response_id}_rewardonly.py")
         cur_reward_function = cur_reward_function.replace('{','{{').replace('}', '}}')
+        feedback = feedback.replace('{','{{').replace('}', '}}')
         policy_feedback = policy_feedback.format(reward_function=cur_reward_function, feedback=feedback, score=max_score)
         coder_feedback = policy_feedback + '\n' + code_feedback
         

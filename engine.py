@@ -73,6 +73,7 @@ def main(cfg):
     max_success_reward_correlation_overall = DUMMY_FAILURE
     max_reward_code_path = None 
     scores = []
+    load_model = True
     
     # Eureka generation loop
     url = "http://localhost:11434/api/chat"
@@ -267,9 +268,10 @@ def main(cfg):
             rl_runs.append(process)
             score = 0.0
             # Compute the vision alignment score for the generated RL
-            if response_id == 0:
-                # Load the BLIP model only once for the first response
+            if load_model:
+                # Load the BLIP model only once for the first time
                 vision_text_model, processor = load_blip_model()
+                load_model = False
             for j in range(cfg.rl.testing_episodes):
                 cur_trajectory_dir = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{response_id}/Ep_{j+1}_Trajectory"
                 s, _, _ = compute_vision_alignment_score(vision_text_model, processor, cur_trajectory_dir, env_name, cfg.models.scorer_batch_size)

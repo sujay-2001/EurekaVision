@@ -333,6 +333,11 @@ def main(cfg):
         messages = [{"role": "user", "content": coder_feedback}]
         
         scores.append(max_score)
+
+        if os.path.exists(cfg.rl.trajectory_dir):
+            shutil.rmtree(cfg.rl.trajectory_dir)
+        if os.path.exists(cfg.rl.save_path):
+            shutil.rmtree(cfg.rl.save_path)
     
     logging.info("Eureka process completed.")
     logging.info("Scores: " + str(scores))

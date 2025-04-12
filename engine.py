@@ -269,10 +269,10 @@ def main(cfg):
             # Compute the vision alignment score for the generated RL
             if response_id == 0:
                 # Load the BLIP model only once for the first response
-                model, processor = load_blip_model()
+                vision_text_model, processor = load_blip_model()
             for j in range(cfg.rl.testing_episodes):
                 cur_trajectory_dir = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{response_id}/Ep_{j+1}_Trajectory"
-                s, _, _ = compute_vision_alignment_score(model, processor, cur_trajectory_dir, env_name, cfg.models.scorer_batch_size)
+                s, _, _ = compute_vision_alignment_score(vision_text_model, processor, cur_trajectory_dir, env_name, cfg.models.scorer_batch_size)
                 score += s
             score /= cfg.rl.testing_episodes
             if score > max_score:

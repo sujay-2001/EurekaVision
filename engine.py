@@ -334,7 +334,7 @@ def main(cfg):
         policy_feedback = policy_feedback.format(reward_function=cur_reward_function, feedback=feedback, score=max_score)
         coder_feedback = policy_feedback + '\n' + code_feedback
         
-        messages = [{"role": "user", "content": coder_feedback}]
+        messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": coder_feedback}]
         
         scores.append(max_score)
 

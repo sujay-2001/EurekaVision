@@ -86,7 +86,9 @@ def main(cfg):
         chunk_size = 1
         max_score = float('-inf')
 
-        logging.info(f"Iteration {iter}: Generating {cfg.sample} samples with {cfg.models.coder_agent}")
+        logging.info(f"Iteration {iter}: Generating {cfg.sample} samples with {cfg.models.coder_agent}")       
+        code_runs = [] 
+        rl_runs = []
 
         while True:
             if total_samples >= cfg.sample:
@@ -106,7 +108,6 @@ def main(cfg):
                     response = requests.post(url, json=payload, headers={"Content-Type": "application/json"})
                     response.raise_for_status()  # Raise an exception for HTTP errors
                     response_cur = response.json()
-                    total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
                     break  # Exit the retry loop on success
                 except Exception as e:
                     if attempt >= 10:
@@ -119,9 +120,6 @@ def main(cfg):
                 logging.info("Terminating due to too many failed attempts!")
                 exit()
 
-            # Ollama returns a JSON with a "message" key. We add this message to our list.
-            responses.append(response_cur.get("message", {}))
-
             # If the response includes token usage info, update accumulators.
             # (This assumes your model provides a similar "usage" field as in OpenAI's API.)
             if "usage" in response_cur:
@@ -131,18 +129,10 @@ def main(cfg):
             else:
                 logging.info("No usage information provided in the response.")
 
-        # Logging the final outputs
-        if cfg.sample == 1:
-            # If only one sample was requested, log its content.
-            logging.info("Ollama Output:\n" + responses[0].get("content", ""))
+            response_cur = response_cur.get("message", {})
+            response = response_cur['content']
             
-        #logging.info(f"Final Token Usage: Prompt Tokens: {prompt_tokens}, Completion Tokens: {total_completion_tokens}, Total Tokens: {total_tokens}")
-        
-        code_runs = [] 
-        rl_runs = []
-        for response_id in range(cfg.sample):
-            response_cur = responses[response_id]["content"]
-            logging.info(f"Iteration {iter}: Processing Code Run {response_id}")
+            logging.info(f"Iteration {iter}: Processing Code Run {total_samples}")
 
             # Regex patterns to extract python code enclosed in GPT response
             patterns = [
@@ -153,11 +143,11 @@ def main(cfg):
                 r'"(.*?)"',
             ]
             for pattern in patterns:
-                code_string = re.search(pattern, response_cur, re.DOTALL)
+                code_string = re.search(pattern, response, re.DOTALL)
                 if code_string is not None:
                     code_string = code_string.group(1).strip()
                     break
-            code_string = response_cur if not code_string else code_string
+            code_string = response if not code_string else code_string
 
             # Remove unnecessary imports
             lines = code_string.split("\n")
@@ -184,18 +174,18 @@ def main(cfg):
                     file.writelines(extras + '\n')
                 
 
-            with open(f"env_iter{iter}_response{response_id}_rewardonly.py", 'w') as file:
+            with open(f"env_iter{iter}_response{total_samples}_rewardonly.py", 'w') as file:
                 file.writelines(code_string + '\n')
 
             # Copy the generated environment code to hydra output directory for bookkeeping
-            shutil.copy(output_file, f"env_iter{iter}_response{response_id}.py")
+            shutil.copy(output_file, f"env_iter{iter}_response{total_samples}.py")
 
             # Find the freest GPU to run GPU-accelerated RL
             #set_freest_gpu()
             
             # Execute the python file with flags
             
-            rl_filepath = f"env_iter{iter}_train_response{response_id}.txt"
+            rl_filepath = f"env_iter{iter}_train_response{total_samples}.txt"
             logging.info("Launching train.py; output will be saved to %s", rl_filepath)
 
             # Build the command line using the flags from train.py:
@@ -209,8 +199,8 @@ def main(cfg):
             #   --seed
             command = [
                 sys.executable, '-u', f'{EUREKA_ROOT_DIR}/utils/train.py',
-                f'--model_name={cfg.rl.train_type}_{response_id}',
-                f'--env_module_path={EUREKA_ROOT_DIR}/envs/{env_name}_{suffix.lower()}.py',
+                f'--model_name={cfg.rl.train_type}_{total_samples}',
+                f'--env_module_path={EUREKA_ROOT_DIR}/env_iter{iter}_response{total_samples}.py',
                 f'--env_module_name={env_name}_{suffix.lower()}',
                 f'--env_class_name={cfg.task}Env',
                 f'--save_model={cfg.rl.save_model}',
@@ -232,6 +222,21 @@ def main(cfg):
                 logging.info("Error in train.py process. Skipping this response.")
                 continue
             
+            total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
+
+            # Ollama returns a JSON with a "message" key. We add this message to our list.
+            responses.append(response_cur)
+
+        # Logging the final outputs
+        if cfg.sample == 1:
+            # If only one sample was requested, log its content.
+            logging.info("Ollama Output:\n" + responses[0].get("content", ""))
+            
+        #logging.info(f"Final Token Usage: Prompt Tokens: {prompt_tokens}, Completion Tokens: {total_completion_tokens}, Total Tokens: {total_tokens}")
+
+        for response_id in range(cfg.sample):
+            response_cur = responses[response_id]["content"]
+            
             rl_filepath = f"env_iter{iter}_eval_response{response_id}.txt"
             logging.info("Launching eval.py; output will be saved to %s", rl_filepath)
             
@@ -249,7 +254,7 @@ def main(cfg):
             command = [
                 sys.executable, '-u', f'{EUREKA_ROOT_DIR}/utils/eval.py',
                 f'--model_name={cfg.rl.train_type}_{response_id}',
-                f'--env_module_path={EUREKA_ROOT_DIR}/envs/{env_name}_{suffix.lower()}.py',
+                f'--env_module_path={EUREKA_ROOT_DIR}/env_iter{iter}_response{response_id}.py',
                 f'--env_module_name={env_name}_{suffix.lower()}',
                 f'--env_class_name={cfg.task}Env',
                 f'--model_path={cfg.rl.save_path}',

@@ -1,2 +1,5 @@
 Environment: {env}, Task Description: {task_description}
+Summary:
 {summary} 
+Reward function:
+{reward_function}

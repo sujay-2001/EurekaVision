@@ -116,116 +116,143 @@ def main(cfg):
                         logging.info(f"Reducing chunk size to {chunk_size}")
                     logging.info(f"Attempt {attempt+1} failed with error: {e}")
                     time.sleep(1)
-            if response_cur is None:
-                logging.info("Terminating due to too many failed attempts!")
-                exit()
 
-            # If the response includes token usage info, update accumulators.
-            # (This assumes your model provides a similar "usage" field as in OpenAI's API.)
-            if "usage" in response_cur:
-                prompt_tokens += response_cur["usage"].get("prompt_tokens", 0)
-                total_completion_tokens += response_cur["usage"].get("completion_tokens", 0)
-                total_tokens += response_cur["usage"].get("total_tokens", 0)
-            else:
-                logging.info("No usage information provided in the response.")
+            while True:
+                if response_cur is None:
+                    logging.info("Terminating due to too many failed attempts!")
+                    exit()
 
-            response_cur = response_cur.get("message", {})
-            response = response_cur['content']
-            
-            logging.info(f"Iteration {iter}: Processing Code Run {total_samples}")
+                # If the response includes token usage info, update accumulators.
+                # (This assumes your model provides a similar "usage" field as in OpenAI's API.)
+                if "usage" in response_cur:
+                    prompt_tokens += response_cur["usage"].get("prompt_tokens", 0)
+                    total_completion_tokens += response_cur["usage"].get("completion_tokens", 0)
+                    total_tokens += response_cur["usage"].get("total_tokens", 0)
+                else:
+                    logging.info("No usage information provided in the response.")
 
-            # Regex patterns to extract python code enclosed in GPT response
-            patterns = [
-                r'```python(.*?)```',
-                r'```(.*?)```',
-                r'"""(.*?)"""',
-                r'""(.*?)""',
-                r'"(.*?)"',
-            ]
-            for pattern in patterns:
-                code_string = re.search(pattern, response, re.DOTALL)
-                if code_string is not None:
-                    code_string = code_string.group(1).strip()
-                    break
-            code_string = response if not code_string else code_string
-
-            # Remove unnecessary imports
-            lines = code_string.split("\n")
-            for i, line in enumerate(lines):
-                if line.strip().startswith("def "):
-                    code_string = "\n".join(lines[i:])
-            if 'self' not in code_string:
-                code_string = code_string.replace('def compute_reward(', 'def compute_reward(self, ')
-            code_runs.append(code_string)
-            
-            indent = " " * 4
-
-            # Save the new environment code when the output contains valid code string!
-            with open(output_file, 'w') as file:
-                match = re.search(r"return reward, \w+\n(.*)", task_code_string, re.DOTALL)
-                if match:
-                    extras = match.group(1)
-                task_code_string_without_rf = task_code_string.split('def compute_reward')[0] # Remove the old reward function
-                code_string_lines = code_string.strip().splitlines()
-                code_string = '\n'.join([indent + line for line in code_string_lines]) # Indent the code to fit in the environment class
-                file.writelines(task_code_string_without_rf + '\n')
-                file.writelines(code_string + '\n')
-                if match:
-                    file.writelines(extras + '\n')
+                response_cur = response_cur.get("message", {})
+                response = response_cur['content']
                 
+                logging.info(f"Iteration {iter}: Processing Code Run {total_samples}")
 
-            with open(f"env_iter{iter}_response{total_samples}_rewardonly.py", 'w') as file:
-                file.writelines(code_string + '\n')
+                # Regex patterns to extract python code enclosed in GPT response
+                patterns = [
+                    r'```python(.*?)```',
+                    r'```(.*?)```',
+                    r'"""(.*?)"""',
+                    r'""(.*?)""',
+                    r'"(.*?)"',
+                ]
+                for pattern in patterns:
+                    code_string = re.search(pattern, response, re.DOTALL)
+                    if code_string is not None:
+                        code_string = code_string.group(1).strip()
+                        break
+                code_string = response if not code_string else code_string
 
-            # Copy the generated environment code to hydra output directory for bookkeeping
-            shutil.copy(output_file, f"env_iter{iter}_response{total_samples}.py")
+                # Remove unnecessary imports
+                lines = code_string.split("\n")
+                for i, line in enumerate(lines):
+                    if line.strip().startswith("def "):
+                        code_string = "\n".join(lines[i:])
+                if 'self' not in code_string:
+                    code_string = code_string.replace('def compute_reward(', 'def compute_reward(self, ')
+                code_runs.append(code_string)
+                
+                indent = " " * 4
 
-            # Find the freest GPU to run GPU-accelerated RL
-            #set_freest_gpu()
-            
-            # Execute the python file with flags
-            
-            rl_filepath = f"env_iter{iter}_train_response{total_samples}.txt"
-            logging.info("Launching train.py; output will be saved to %s", rl_filepath)
+                # Save the new environment code when the output contains valid code string!
+                with open(output_file, 'w') as file:
+                    match = re.search(r"return reward, \w+\n(.*)", task_code_string, re.DOTALL)
+                    if match:
+                        extras = match.group(1)
+                    task_code_string_without_rf = task_code_string.split('def compute_reward')[0] # Remove the old reward function
+                    code_string_lines = code_string.strip().splitlines()
+                    code_string = '\n'.join([indent + line for line in code_string_lines]) # Indent the code to fit in the environment class
+                    file.writelines(task_code_string_without_rf + '\n')
+                    file.writelines(code_string + '\n')
+                    if match:
+                        file.writelines(extras + '\n')
+                    
 
-            # Build the command line using the flags from train.py:
-            # train.py expects:
-            #   --model_name
-            #   --env_module_name
-            #   --env_class_name
-            #   --save_model
-            #   --save_path
-            #   --training_steps
-            #   --seed
-            command = [
-                sys.executable, '-u', f'{EUREKA_ROOT_DIR}/utils/train.py',
-                f'--model_name={cfg.rl.train_type}_{total_samples}',
-                f'--env_module_path={EUREKA_ROOT_DIR}/env_iter{iter}_response{total_samples}.py',
-                f'--env_module_name={env_name}_{suffix.lower()}',
-                f'--env_class_name={cfg.task}Env',
-                f'--save_model={cfg.rl.save_model}',
-                f'--save_path={cfg.rl.save_path}',
-                f'--training_steps={cfg.rl.training_steps}',
-                f'--seed={cfg.rl.seed}'
-            ]
+                with open(f"env_iter{iter}_response{total_samples}_rewardonly.py", 'w') as file:
+                    file.writelines(code_string + '\n')
 
-            # Launch train.py as a subprocess.
-            with open(rl_filepath, 'w') as f:
-                process = subprocess.Popen(command, stdout=f, stderr=f, env=os.environ)
-                logging.info("train.py process launched with PID: %s", process.pid)
-                process.wait()
-                logging.info("train.py process completed with return code: %s", process.returncode)
-            rl_runs.append(process)
-            
-            
-            if process.returncode != 0:
+                # Copy the generated environment code to hydra output directory for bookkeeping
+                shutil.copy(output_file, f"env_iter{iter}_response{total_samples}.py")
+
+                # Find the freest GPU to run GPU-accelerated RL
+                #set_freest_gpu()
+                
+                # Execute the python file with flags
+                
+                rl_filepath = f"env_iter{iter}_train_response{total_samples}.txt"
+                logging.info("Launching train.py; output will be saved to %s", rl_filepath)
+
+                # Build the command line using the flags from train.py:
+                # train.py expects:
+                #   --model_name
+                #   --env_module_name
+                #   --env_class_name
+                #   --save_model
+                #   --save_path
+                #   --training_steps
+                #   --seed
+                command = [
+                    sys.executable, '-u', f'{EUREKA_ROOT_DIR}/utils/train.py',
+                    f'--model_name={cfg.rl.train_type}_{total_samples}',
+                    f'--env_module_path={EUREKA_ROOT_DIR}/env_iter{iter}_response{total_samples}.py',
+                    f'--env_module_name={env_name}_{suffix.lower()}',
+                    f'--env_class_name={cfg.task}Env',
+                    f'--save_model={cfg.rl.save_model}',
+                    f'--save_path={cfg.rl.save_path}',
+                    f'--training_steps={cfg.rl.training_steps}',
+                    f'--seed={cfg.rl.seed}'
+                ]
+
+                # Launch train.py as a subprocess.
+                with open(rl_filepath, 'w') as f:
+                    process = subprocess.Popen(command, stdout=f, stderr=f, env=os.environ)
+                    logging.info("train.py process launched with PID: %s", process.pid)
+                    process.wait()
+                    logging.info("train.py process completed with return code: %s", process.returncode)
+                rl_runs.append(process)
+                                
+                if process.returncode == 0:
+                    break
+
                 logging.info("Error in train.py process. Skipping this response.")
-                continue
-            
-            total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
+                execution_error_feedback = execution_error_feedback.format(traceback_msg=process.stderr)
+                new_messages = messages + [{"role": "user", "content": execution_error_feedback}]
+                for attempt in range(1000):
+                    try:
+                        # Build the payload.
+                        # Note: If Ollama supported multiple completions with "n", you could include it here.
+                        payload = {
+                            "model": model,
+                            "messages": new_messages,
+                            "temperature": cfg.models.coder_config.temperature,
+                            "stream": False
+                        }
+                        logging.info(f"Attempt {attempt+1}: Sending request with chunk size {chunk_size}")
+                        # Send the POST request (make sure the endpoint URL is correct for your installation)
+                        response = requests.post(url, json=payload, headers={"Content-Type": "application/json"})
+                        response.raise_for_status()  # Raise an exception for HTTP errors
+                        response_cur = response.json()
+                        break  # Exit the retry loop on success
+                    except Exception as e:
+                        if attempt >= 10:
+                            # Reduce chunk size if multiple failures occur (simulate backoff)
+                            chunk_size = max(int(chunk_size / 2), 1)
+                            logging.info(f"Reducing chunk size to {chunk_size}")
+                        logging.info(f"Attempt {attempt+1} failed with error: {e}")
+                        time.sleep(1)
+                
+                total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
 
-            # Ollama returns a JSON with a "message" key. We add this message to our list.
-            responses.append(response_cur)
+                # Ollama returns a JSON with a "message" key. We add this message to our list.
+                responses.append(response_cur)
 
         # Logging the final outputs
         if cfg.sample == 1:
@@ -297,7 +324,9 @@ def main(cfg):
         for j in range(cfg.rl.testing_episodes):
             summary_path = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_{j+1}_Summary/summary.txt"
             summary = f"Episode {j+1} evaluation metrics:\n" + file_to_string(summary_path)
-        feedback_prompt = feedback_prompt.format(env=env_name, task_description=task_description, summary=summary)
+        
+        cur_reward_function = file_to_string(filename=f"env_iter{iter}_response{best_response_id}_rewardonly.py")
+        feedback_prompt = feedback_prompt.format(env=env_name, task_description=task_description, summary=summary, reward_function=cur_reward_function)
         images_dir = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_1_Summary"
         images = [encode_image(os.path.join(images_dir,image_path)) for image_path in os.listdir(images_dir) if image_path.endswith('.png')]
         feedback_messages = [{"role": "system", "content": feedback_agent_system}, {"role": "user", "content": feedback_prompt, "images": images}]
@@ -334,7 +363,6 @@ def main(cfg):
             file.writelines(feedback + '\n')
         
         # Feedback to coding LLM
-        cur_reward_function = file_to_string(filename=f"env_iter{iter}_response{best_response_id}_rewardonly.py")
         p_feedback = policy_feedback.format(reward_function=cur_reward_function, feedback=feedback, score=max_score)
         coder_feedback = p_feedback + '\n' + code_feedback
         

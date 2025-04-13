@@ -132,7 +132,7 @@ def main(cfg):
                     logging.info("No usage information provided in the response.")
 
                 response_cur = response_cur.get("message", {})
-                response = response_cur['content']
+                response_content = response_cur['content']
                 
                 logging.info(f"Iteration {iter}: Processing Code Run {total_samples}")
 
@@ -145,11 +145,11 @@ def main(cfg):
                     r'"(.*?)"',
                 ]
                 for pattern in patterns:
-                    code_string = re.search(pattern, response, re.DOTALL)
+                    code_string = re.search(pattern, response_content, re.DOTALL)
                     if code_string is not None:
                         code_string = code_string.group(1).strip()
                         break
-                code_string = response if not code_string else code_string
+                code_string = response_content if not code_string else code_string
 
                 # Remove unnecessary imports
                 lines = code_string.split("\n")
@@ -224,7 +224,7 @@ def main(cfg):
 
                 logging.info("Error in train.py process. Skipping this response.")
                 execution_error_feedback = execution_error_feedback.format(traceback_msg=process.stderr)
-                new_messages = messages + [{"role": "user", "content": execution_error_feedback}]
+                new_messages = messages + [{"role": "assistant", "content": response_content}, {"role": "user", "content": execution_error_feedback}]
                 for attempt in range(1000):
                     try:
                         # Build the payload.

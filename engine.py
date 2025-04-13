@@ -255,6 +255,7 @@ def main(cfg):
                 sys.executable, '-u', f'{EUREKA_ROOT_DIR}/utils/eval.py',
                 f'--model_name={cfg.rl.train_type}_{response_id}',
                 f'--env_module_path={EUREKA_ROOT_DIR}/env_iter{iter}_response{response_id}.py',
+                f'--obs_path={EUREKA_ROOT_DIR}/envs/{env_name}_obs.json',
                 f'--env_module_name={env_name}_{suffix.lower()}',
                 f'--env_class_name={cfg.task}Env',
                 f'--model_path={cfg.rl.save_path}',

@@ -31,6 +31,12 @@ flags.DEFINE_string(
 )
 
 flags.DEFINE_string(
+    "obs_path", 
+    "./../envs/acrobot_obs.py", 
+    "Path to the observation json. Default is ../envs/acrobot_obs.py"
+)
+
+flags.DEFINE_string(
     "env_module_path", 
     "./../envs/acrobot_mistral.py", 
     "Path to the environment module. Default is ../envs/cartpole_gpt.py"
@@ -281,7 +287,7 @@ def main(_):
     # Import the environment module dynamically.
     module_name = FLAGS.env_module_name  # Name of the module (without .py extension)
     module_path = FLAGS.env_module_path # Path to the module file (e.g., "path/to/module.py")
-    obs_path = os.path.join(os.path.dirname(module_path), f"{module_name.split('_')[0]}_obs.json")
+    obs_path = FLAGS.obs_path # Path to the observation json file
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     logging.info("Loading module from path: %s", module_path)
     logging.info("Importing module: %s", module_name)

@@ -1,1 +1,1 @@
-The details about observation space (states array) and action space (actions array) is as follows {task_obs_code_string}. You can use the above information to access any particular state, action, and write a reward function for the following task: {task_description}.
+The details about observation space (states array) and action space (actions array) is as follows {task_obs_code_string}. You can use the above information to access any particular state, action (for instance states[i], actions[i]) and write a reward function for the following task: {task_description}.

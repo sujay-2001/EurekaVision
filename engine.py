@@ -249,10 +249,10 @@ def main(cfg):
                         logging.info(f"Attempt {attempt+1} failed with error: {e}")
                         time.sleep(1)
                 
-                total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
+            total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
 
-                # Ollama returns a JSON with a "message" key. We add this message to our list.
-                responses.append(response_cur)
+            # Ollama returns a JSON with a "message" key. We add this message to our list.
+            responses.append(response_cur)
 
         # Logging the final outputs
         if cfg.sample == 1:

@@ -223,7 +223,8 @@ def main(cfg):
                     break
 
                 logging.info("Error in train.py process. Skipping this response.")
-                execution_error_feedback = execution_error_feedback.format(traceback_msg=process.stderr)
+                traceback_msg = file_to_string(rl_filepath).split("Traceback (most recent call last):")[-1]
+                execution_error_feedback = execution_error_feedback.format(traceback_msg=traceback_msg)
                 new_messages = messages + [{"role": "assistant", "content": response_content}, {"role": "user", "content": execution_error_feedback}]
                 for attempt in range(1000):
                     try:

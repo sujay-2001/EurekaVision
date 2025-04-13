@@ -1,2 +1,3 @@
 Environment: {env}, Task Description: {task_description}
 {summary}
+Episode length can reflect performance differently based on the task's objectives. A longer episode may indicate effective maintenance of a desired state, while a shorter episode could signify rapid attainment of the goal. Provide only the feedback in your response.

@@ -337,8 +337,8 @@ def main(cfg):
         cur_reward_function = file_to_string(filename=f"env_iter{iter}_response{best_response_id}_rewardonly.py")
         cur_reward_function = cur_reward_function.replace('{','{{').replace('}', '}}')
         feedback = feedback.replace('{','{{').replace('}', '}}')
-        policy_feedback = policy_feedback.format(reward_function=cur_reward_function, feedback=feedback, score=max_score)
-        coder_feedback = policy_feedback + '\n' + code_feedback
+        p_feedback = policy_feedback.format(reward_function=cur_reward_function, feedback=feedback, score=max_score)
+        coder_feedback = p_feedback + '\n' + code_feedback
         
         messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": coder_feedback}]
         

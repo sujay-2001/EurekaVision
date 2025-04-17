@@ -1,6 +1,6 @@
 {
     "Description": "The Mountain Car MDP is a deterministic MDP that consists of a car placed stochastically at the bottom of a sinusoidal valley, with the only possible actions being the accelerations that can be applied to the car in either direction. The goal of the MDP is to strategically accelerate the car to reach the goal state on top of the right hill. There are two versions\n    of the mountain car domain in gym: one with discrete actions and one with continuous.\nThis version is the one with continuous actions.",
-    "Action Space": "The action is a `ndarray` with shape `(1,)`, representing the directional force applied on the car.\n    The action is clipped in the range `[-1,1]` and multiplied by a power of 0.0015.",
+    "Action Space": "The action is a `ndarray` with shape `(1,)`, representing the directional force applied on the car. The action is clipped in the range `[-1,1]` and multiplied by a power of 0.0015.",
     "Observation Space": [
         {
             "num": 0,

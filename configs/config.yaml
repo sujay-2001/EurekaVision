@@ -1,7 +1,7 @@
 # This is the configuration file for the Eureka++ framework.
 task: 'CartPole'
 env: 'cartpole'
-iteration: 2
+iteration: 4
 sample: 2
 
 # LLM Agents parameters
@@ -13,8 +13,8 @@ models:
     suffix: 'gemma'
   feedback_agent: 'gemma3:4b'
   feedback_config:
-    temperature: 0.5
-  scorer_batch_size: 128
+    temperature: 0.3
+  scorer_batch_size: 8
 
 rl:
   train_type: 'PPO'

@@ -1,22 +1,6 @@
 {
     "Description": "The system consists of two links connected linearly to form a chain, with one end of the chain fixed. The joint between the two links is actuated. The goal is to apply torques on the actuated joint to swing the free end of the linear chain above a given height while starting from the initial state of hanging downwards.",
-    "Action Space": [
-        {
-            "num": 0,
-            "action": "apply -1 torque to the actuated joint",
-            "unit": "torque (N m)"
-        },
-        {
-            "num": 1,
-            "action": "apply 0 torque to the actuated joint",
-            "unit": "torque (N m)"
-        },
-        {
-            "num": 2,
-            "action": "apply 1 torque to the actuated joint",
-            "unit": "torque (N m)"
-        }
-    ],
+    "Action Space": "The action is a `ndarray` with shape `(1,)` which can take values `{0, 1, 2}` indicating the torque applied to the actuated joint. The action is discretized into three values: -1, 0, and 1, which correspond to applying a negative torque, no torque, and a positive torque, respectively. The action is applied to the actuated joint of the system.",
     "Observation Space": [
         {
             "num": 0,

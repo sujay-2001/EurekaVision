@@ -1,5 +1,6 @@
 """classic Acrobot task"""
-from typing import Optional
+import math
+from typing import Optional, Union, Tuple, Dict
 
 import numpy as np
 from numpy import cos, pi, sin

@@ -1,7 +1,8 @@
 __credits__ = ["Carlos Luis"]
 
 from os import path
-from typing import Optional
+import math
+from typing import Optional, Union, Tuple, Dict
 
 import numpy as np
 

@@ -164,7 +164,11 @@ def main(cfg):
 
                 # Save the new environment code when the output contains valid code string!
                 with open(output_file, 'w') as file:
-                    match = re.search(r"return reward, \w+\n(.*)", task_code_string, re.DOTALL)
+                    pattern = re.compile(
+                        r"return reward,\s*.*\r?\n"   # match the return‑line (anything after the comma)
+                        r"([\s\S]*)"                  # capture everything else, including newlines
+                    )
+                    match = pattern.search(task_code_string)
                     if match:
                         extras = match.group(1)
                     task_code_string_without_rf = task_code_string.split('def compute_reward')[0] # Remove the old reward function

@@ -240,9 +240,11 @@ def main(cfg):
                             "temperature": cfg.models.coder_config.temperature,
                             "stream": False
                         }
+                        body = json.dumps(payload)
+                        logging.info("Feedback payload size: %.2f MB", len(body)/1_048_576)
                         logging.info(f"Attempt {attempt+1}: Sending request with chunk size {chunk_size}")
                         # Send the POST request (make sure the endpoint URL is correct for your installation)
-                        response = requests.post(url, json=payload, headers={"Content-Type": "application/json"})
+                        response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=120)
                         response.raise_for_status()  # Raise an exception for HTTP errors
                         response_cur = response.json()
                         break  # Exit the retry loop on success
@@ -328,13 +330,13 @@ def main(cfg):
         summary = ''
         for j in range(cfg.rl.testing_episodes):
             summary_path = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_{j+1}_Summary/summary.txt"
-            summary = f"Episode {j+1} evaluation metrics:\n" + file_to_string(summary_path)
+            summary += f"Episode {j+1} evaluation metrics:\n" + file_to_string(summary_path)
         
         cur_reward_function = file_to_string(filename=f"env_iter{iter}_response{best_response_id}_rewardonly.py")
         feedback_prompt = feedback_prompt.format(env=env_name, task_description=task_description, summary=summary, reward_function=cur_reward_function)
         images_dir = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_1_Summary"
         images = [encode_image(os.path.join(images_dir,image_path)) for image_path in os.listdir(images_dir) if image_path.endswith('.png')]
-        feedback_messages = [{"role": "system", "content": feedback_agent_system}, {"role": "user", "content": feedback_prompt, "images": images}]
+        feedback_messages = [{"role": "system", "content": feedback_agent_system}, {"role": "user", "content": feedback_prompt}]
         for attempt in range(1000):
             try:
                 # Build the payload.
@@ -342,12 +344,15 @@ def main(cfg):
                 payload = {
                     "model": feedback_agent,
                     "messages": feedback_messages,
+                    "images": images,
                     "temperature": cfg.models.feedback_config.temperature,
                     "stream": False
                 }
+                body = json.dumps(payload)
+                logging.info("Feedback payload size: %.2f MB", len(body)/1_048_576)
                 logging.info(f"Attempt {attempt+1}: Sending request with chunk size {chunk_size}")
                 # Send the POST request (make sure the endpoint URL is correct for your installation)
-                response = requests.post(url, json=payload, headers={"Content-Type": "application/json"})
+                response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=120)
                 response.raise_for_status()  # Raise an exception for HTTP errors
                 response_cur = response.json()
                 break  # Exit the retry loop on success

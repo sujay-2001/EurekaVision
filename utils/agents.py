@@ -21,7 +21,7 @@ env_description= {
     "goal": "balanced inverted pendulum",
     "baseline": "pendulum"
 },
-"mountaincar": {
+"mountain_car": {
     "goal": "car at the top of the mountain",
     "baseline": "car on the mountain"
 }

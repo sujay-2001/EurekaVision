@@ -103,9 +103,11 @@ def main(cfg):
                         "temperature": cfg.models.coder_config.temperature,
                         "stream": False
                     }
+                    body = json.dumps(payload)
+                    logging.info("Payload size: %.2f MB", len(body)/1_048_576)
                     logging.info(f"Attempt {attempt+1}: Sending request with chunk size {chunk_size}")
                     # Send the POST request (make sure the endpoint URL is correct for your installation)
-                    response = requests.post(url, json=payload, headers={"Content-Type": "application/json"})
+                    response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=120)
                     response.raise_for_status()  # Raise an exception for HTTP errors
                     response_cur = response.json()
                     break  # Exit the retry loop on success

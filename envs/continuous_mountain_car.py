@@ -166,7 +166,7 @@ class Continuous_MountainCarEnv(gym.Env):
         
         self.state = np.array([position, velocity], dtype=np.float32)
         states = self.state
-        actions = action
+        actions = np.atleast_1d(action).astype(np.float32)
         reward, reward_components = self.compute_reward(states, actions, terminated)
         self.reward_components = reward_components
 

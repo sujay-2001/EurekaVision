@@ -219,7 +219,7 @@ class AcrobotEnv(core.Env):
         self.state = ns
         terminated = self._terminal()
         states = self._get_ob() 
-        actions = np.array([action], dtype=np.float32)
+        actions = np.atleast_1d(action).astype(np.float32)
         reward, reward_components = self.compute_reward(states, actions, terminated)
         self.reward_components = reward_components
 

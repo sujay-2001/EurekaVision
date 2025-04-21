@@ -135,7 +135,7 @@ class PendulumEnv(gym.Env):
 
         self.state = np.array([newth, newthdot])
         states = self._get_obs()
-        actions = np.array([u])
+        actions = np.atleast_1d(u).astype(np.float32)
         reward, reward_components = self.compute_reward(states, actions)
         self.reward_components = reward_components
 

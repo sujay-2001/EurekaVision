@@ -143,7 +143,7 @@ class MountainCarEnv(gym.Env):
         )
         self.state = (position, velocity)
         states = np.array(self.state, dtype=np.float32)
-        actions = np.array(action, dtype=np.int32)
+        actions = np.atleast_1d(action).astype(np.int32)
         reward, reward_components = self.compute_reward(states, actions, terminated)
         self.reward_components = reward_components
         if self.render_mode == "human":

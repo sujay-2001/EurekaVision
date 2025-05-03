@@ -231,6 +231,7 @@ def main(cfg):
                     f'--env_class_name={cfg.task}Env',
                     f'--save_model={cfg.rl.save_model}',
                     f'--save_path={cfg.rl.save_path}',
+                    f'--episode_length={cfg.rl.episode_length}',
                     f'--training_steps={cfg.rl.training_steps}',
                     f'--seed={cfg.rl.seed}'
                 ]
@@ -290,6 +291,7 @@ def main(cfg):
                 f'--env_class_name={cfg.task}Env',
                 f'--model_path={cfg.rl.save_path}',
                 f'--trajectory_dir={cfg.rl.trajectory_dir}',
+                f'--episode_length={cfg.rl.episode_length}',
                 f'--testing_episodes={cfg.rl.testing_episodes}',
                 f'--render={cfg.rl.render}',
                 f'--seed={cfg.rl.seed}'

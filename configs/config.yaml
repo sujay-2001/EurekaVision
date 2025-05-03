@@ -19,6 +19,7 @@ models:
 rl:
   train_type: 'PPO'
   training_steps: 100000
+  episode_length: 500
   save_model: true
   save_path: './models'
   seed: 21

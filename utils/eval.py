@@ -63,6 +63,12 @@ flags.DEFINE_string(
 )
 
 flags.DEFINE_integer(
+    "episode_length",
+    500,
+    "Maximum episode length." 
+)
+
+flags.DEFINE_integer(
     "testing_episodes", 
     1, 
     "Number of testing episodes."
@@ -302,7 +308,7 @@ def main(_):
     logging.info("Environment initialized: %s", env_instance)
 
     # Optionally wrap the environment (assuming wrap_env is defined elsewhere)
-    env_instance = wrap_env(env_instance, render_wrap=False)
+    env_instance = wrap_env(env_instance, render_wrap=False, max_episode_steps=FLAGS.episode_length)
     logging.info("Environment wrapped: %s", env_instance)
     
     #Start evaluating the environment.

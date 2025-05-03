@@ -132,7 +132,6 @@ def plot_transitions_and_save_prompt(obs_path, episode_rewards, reward_component
     plt.close()
     
     #Reward components plots
-    '''
     for k, v in reward_components.items():
         plt.figure()
         plt.plot(v)
@@ -142,7 +141,6 @@ def plot_transitions_and_save_prompt(obs_path, episode_rewards, reward_component
         plt.grid(True)
         plt.savefig(os.path.join(episode_dir, f"{k}_plot.png"))
         plt.close()
-    '''
     
     states = np.array(states)
     

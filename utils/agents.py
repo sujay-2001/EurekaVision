@@ -27,8 +27,6 @@ env_description= {
 }
 }
 
-
-
 def get_frames(frames_dir):    
     """
     Get a list of image frames from the specified directory.

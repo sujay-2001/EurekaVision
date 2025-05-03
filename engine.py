@@ -19,7 +19,7 @@ import sys
 EUREKA_ROOT_DIR = os.getcwd()
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def get_ollama_response(url, model, messages, cfg):
+def get_ollama_response(url, model, messages, chunk_size, cfg):
     for attempt in range(1000):
         try:
             # Build the payload.
@@ -135,7 +135,7 @@ def main(cfg):
             if total_samples >= cfg.sample:
                 break
             # Get the response from the LLM
-            response_cur = get_ollama_response(url, model, messages, cfg)
+            response_cur = get_ollama_response(url, model, messages, chunk_size, cfg)
 
             while True:
                 if response_cur is None:

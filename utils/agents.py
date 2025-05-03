@@ -24,7 +24,19 @@ env_description= {
 "mountain_car": {
     "goal": "car at the top of the mountain",
     "baseline": "car on the mountain"
-}
+},
+"lunar_lander": {
+    "goal": "lander on the landing pad",
+    "baseline": "lander"
+},
+"reacher": {
+    "goal": "robot arm close to target",
+    "baseline": "robot arm"
+},
+"swimmer": {
+    "goal": "three links swimmer near the right end",
+    "baseline": "three links swimmer"
+},
 }
 
 def get_frames(frames_dir):    

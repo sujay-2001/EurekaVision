@@ -19,6 +19,34 @@ import sys
 EUREKA_ROOT_DIR = os.getcwd()
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+def get_ollama_response(url, model, messages, cfg):
+    for attempt in range(1000):
+        try:
+            # Build the payload.
+            # Note: If Ollama supported multiple completions with "n", you could include it here.
+            payload = {
+                "model": model,
+                "messages": messages,
+                "temperature": cfg.models.coder_config.temperature,
+                "stream": False
+            }
+            body = json.dumps(payload)
+            logging.info("Payload size: %.2f MB", len(body)/1_048_576)
+            logging.info(f"Attempt {attempt+1}: Sending request with chunk size {chunk_size}")
+            # Send the POST request (make sure the endpoint URL is correct for your installation)
+            response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=120)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            response_cur = response.json()
+            return response_cur  # Exit the retry loop on success
+        except Exception as e:
+            if attempt >= 10:
+                # Reduce chunk size if multiple failures occur (simulate backoff)
+                chunk_size = max(int(chunk_size / 2), 1)
+                logging.info(f"Reducing chunk size to {chunk_size}")
+            logging.info(f"Attempt {attempt+1} failed with error: {e}")
+            time.sleep(1)
+    return None
+
 def main(cfg):
     workspace_dir = Path.cwd()
     logging.info(f"Workspace: {workspace_dir}")
@@ -28,7 +56,20 @@ def main(cfg):
 
     task = cfg.task
     env_name = cfg.env
-    env_details_path = EUREKA_ROOT_DIR + f"/envs/{env_name}_obs.json"
+    if env_name in ['acrobot', 'cartpole', 'mountain_car', 'continuous_mountain_car', 'pendulum']:
+        eng_name = 'classic_control'
+    elif env_name in ['reacher', 'swimmer', 'ant', 'half_cheetah', 'hopper', 'walker2d', 'inverted_pendulum', 'inverted_double_pendulum', 'humanoid', 'humanoid_standup', 'pusher']:
+        eng_name = 'mujoco'
+    elif env_name in ['lunar_lander', 'lunar_lander_continuous', 'car_racing', 'bipedal_walker', 'bipedal_walker_hardcore']:
+        eng_name = 'box2d'
+    elif env_name in ['fetch', 'hand', 'shadow_hand', 'door', 'drawer', 'button', 'pen']:
+        eng_name = 'fetch'
+    elif env_name in ['stack', 'pick_and_place', 'push', 'reach']:
+        eng_name = 'isaac'
+    else:
+        raise ValueError(f"Unknown environment name: {env_name}. Please check the environment name.")
+    
+    env_details_path = EUREKA_ROOT_DIR + f"/envs/{eng_name}/{env_name}_obs.json"
     env_details = json.load(open(env_details_path, 'r'))
     task_description = env_details["Description"]
     suffix = cfg.models.coder_config.suffix
@@ -37,12 +78,12 @@ def main(cfg):
     logging.info("Task: " + task)
     logging.info("Task description: " + task_description)
 
-    task_file = f'{EUREKA_ROOT_DIR}/envs/{env_name}.py'
-    task_obs_file = f'{EUREKA_ROOT_DIR}/envs/{env_name}_obs.json'
+    task_file = f'{EUREKA_ROOT_DIR}/envs/{eng_name}/{env_name}.py'
+    task_obs_file = f'{EUREKA_ROOT_DIR}/envs/{eng_name}/{env_name}_obs.json'
     shutil.copy(task_obs_file, f"env_init_obs.json")
     task_code_string  = file_to_string(task_file)
     task_obs_code_string  = file_to_string(task_obs_file)
-    output_file = f"{EUREKA_ROOT_DIR}/envs/{env_name}_{suffix.lower()}.py"
+    output_file = f"{EUREKA_ROOT_DIR}/envs/{eng_name}/{env_name}_{suffix.lower()}.py"
 
     # Loading all text prompts
     prompt_dir = f'{EUREKA_ROOT_DIR}/utils/prompts'
@@ -93,31 +134,8 @@ def main(cfg):
         while True:
             if total_samples >= cfg.sample:
                 break
-            for attempt in range(1000):
-                try:
-                    # Build the payload.
-                    # Note: If Ollama supported multiple completions with "n", you could include it here.
-                    payload = {
-                        "model": model,
-                        "messages": messages,
-                        "temperature": cfg.models.coder_config.temperature,
-                        "stream": False
-                    }
-                    body = json.dumps(payload)
-                    logging.info("Payload size: %.2f MB", len(body)/1_048_576)
-                    logging.info(f"Attempt {attempt+1}: Sending request with chunk size {chunk_size}")
-                    # Send the POST request (make sure the endpoint URL is correct for your installation)
-                    response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=120)
-                    response.raise_for_status()  # Raise an exception for HTTP errors
-                    response_cur = response.json()
-                    break  # Exit the retry loop on success
-                except Exception as e:
-                    if attempt >= 10:
-                        # Reduce chunk size if multiple failures occur (simulate backoff)
-                        chunk_size = max(int(chunk_size / 2), 1)
-                        logging.info(f"Reducing chunk size to {chunk_size}")
-                    logging.info(f"Attempt {attempt+1} failed with error: {e}")
-                    time.sleep(1)
+            # Get the response from the LLM
+            response_cur = get_ollama_response(url, model, messages, cfg)
 
             while True:
                 if response_cur is None:
@@ -232,31 +250,7 @@ def main(cfg):
                 traceback_msg = file_to_string(rl_filepath).split("Traceback (most recent call last):")[-1]
                 execution_error_feedback = execution_error_feedback.format(traceback_msg=traceback_msg)
                 new_messages = messages + [{"role": "assistant", "content": response_content}, {"role": "user", "content": execution_error_feedback}]
-                for attempt in range(1000):
-                    try:
-                        # Build the payload.
-                        # Note: If Ollama supported multiple completions with "n", you could include it here.
-                        payload = {
-                            "model": model,
-                            "messages": new_messages,
-                            "temperature": cfg.models.coder_config.temperature,
-                            "stream": False
-                        }
-                        body = json.dumps(payload)
-                        logging.info("Feedback payload size: %.2f MB", len(body)/1_048_576)
-                        logging.info(f"Attempt {attempt+1}: Sending request with chunk size {chunk_size}")
-                        # Send the POST request (make sure the endpoint URL is correct for your installation)
-                        response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=120)
-                        response.raise_for_status()  # Raise an exception for HTTP errors
-                        response_cur = response.json()
-                        break  # Exit the retry loop on success
-                    except Exception as e:
-                        if attempt >= 10:
-                            # Reduce chunk size if multiple failures occur (simulate backoff)
-                            chunk_size = max(int(chunk_size / 2), 1)
-                            logging.info(f"Reducing chunk size to {chunk_size}")
-                        logging.info(f"Attempt {attempt+1} failed with error: {e}")
-                        time.sleep(1)
+                response_cur = get_ollama_response(url, model, new_messages, cfg)
                 
             total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
 
@@ -291,7 +285,7 @@ def main(cfg):
                 sys.executable, '-u', f'{EUREKA_ROOT_DIR}/utils/eval.py',
                 f'--model_name={cfg.rl.train_type}_{response_id}',
                 f'--env_module_path={EUREKA_ROOT_DIR}/env_iter{iter}_response{response_id}.py',
-                f'--obs_path={EUREKA_ROOT_DIR}/envs/{env_name}_obs.json',
+                f'--obs_path={EUREKA_ROOT_DIR}/envs/{eng_name}/{env_name}_obs.json',
                 f'--env_module_name={env_name}_{suffix.lower()}',
                 f'--env_class_name={cfg.task}Env',
                 f'--model_path={cfg.rl.save_path}',
@@ -339,32 +333,9 @@ def main(cfg):
         images_dir = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_1_Summary"
         images = [encode_image(os.path.join(images_dir,image_path)) for image_path in os.listdir(images_dir) if image_path.endswith('.png')]
         feedback_messages = [{"role": "system", "content": feedback_agent_system}, {"role": "user", "content": feedback_prompt}]
-        for attempt in range(1000):
-            try:
-                # Build the payload.
-                # Note: If Ollama supported multiple completions with "n", you could include it here.
-                payload = {
-                    "model": feedback_agent,
-                    "messages": feedback_messages,
-                    "images": images,
-                    "temperature": cfg.models.feedback_config.temperature,
-                    "stream": False
-                }
-                body = json.dumps(payload)
-                logging.info("Feedback payload size: %.2f MB", len(body)/1_048_576)
-                logging.info(f"Attempt {attempt+1}: Sending request with chunk size {chunk_size}")
-                # Send the POST request (make sure the endpoint URL is correct for your installation)
-                response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=120)
-                response.raise_for_status()  # Raise an exception for HTTP errors
-                response_cur = response.json()
-                break  # Exit the retry loop on success
-            except Exception as e:
-                if attempt >= 10:
-                    # Reduce chunk size if multiple failures occur (simulate backoff)
-                    chunk_size = max(int(chunk_size / 2), 1)
-                    logging.info(f"Reducing chunk size to {chunk_size}")
-                logging.info(f"Attempt {attempt+1} failed with error: {e}")
-                time.sleep(1)
+        
+        response_cur = get_ollama_response(url, feedback_agent, feedback_messages, cfg)
+        
         if response_cur is None:
             logging.info("Terminating due to too many failed attempts!")
             exit()

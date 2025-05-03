@@ -1,0 +1,96 @@
+{
+    "Description": "This environment corresponds to the Swimmer environment described in Rémi Coulom’s PhD thesis “Reinforcement Learning Using Neural Networks, with Applications to Motor Control” .\nThe environment aims to increase the number of independent state and control variables compared to classical control environments.\nThe swimmers consist of three or more segments (’ links ’) and one less articulation joints (’ rotors ’) - one rotor joint connects exactly two links to form a linear chain.\nThe swimmer is suspended in a two-dimensional pool and always starts in the same position (subject to some deviation drawn from a uniform distribution),\nand the goal is to move as fast as possible towards the right by applying torque to the rotors and using fluid friction.",
+    "Action Space": "The action space is a Box(-1, 1, (2,), float32) . An action represents the torques applied between links",
+    "Observation Space": [
+        {
+            "num": "0",
+            "observation": "angle of the front tip",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "free_body_rot",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "1",
+            "observation": "angle of the first rotor",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "motor1_rot",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "2",
+            "observation": "angle of the second rotor",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "motor2_rot",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "3",
+            "observation": "velocity of the tip along the x-axis",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "slider1",
+            "joint": "slide",
+            "type (unit)": "velocity (m/s)"
+        },
+        {
+            "num": "4",
+            "observation": "velocity of the tip along the y-axis",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "slider2",
+            "joint": "slide",
+            "type (unit)": "velocity (m/s)"
+        },
+        {
+            "num": "5",
+            "observation": "angular velocity of front tip",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "free_body_rot",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "6",
+            "observation": "angular velocity of first rotor",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "motor1_rot",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "7",
+            "observation": "angular velocity of second rotor",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "motor2_rot",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "excluded",
+            "observation": "position of the tip along the x-axis",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "slider1",
+            "joint": "slide",
+            "type (unit)": "position (m)"
+        },
+        {
+            "num": "excluded",
+            "observation": "position of the tip along the y-axis",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "slider2",
+            "joint": "slide",
+            "type (unit)": "position (m)"
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+### Description
+This environment corresponds to the Swimmer environment described in Rémi Coulom’s PhD thesis “Reinforcement Learning Using Neural Networks, with Applications to Motor Control” .
+The environment aims to increase the number of independent state and control variables compared to classical control environments.
+The swimmers consist of three or more segments (’ links ’) and one less articulation joints (’ rotors ’) - one rotor joint connects exactly two links to form a linear chain.
+The swimmer is suspended in a two-dimensional pool and always starts in the same position (subject to some deviation drawn from a uniform distribution),
+and the goal is to move as fast as possible towards the right by applying torque to the rotors and using fluid friction.
+
+### Action Space
+The action space is a Box(-1, 1, (2,), float32) . An action represents the torques applied between links
+
+### Observation Space
+| Num | Observation | Min | Max | Name (in corresponding XML file) | Joint | Type (Unit) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | angle of the front tip | -Inf | Inf | free_body_rot | hinge | angle (rad) |
+| 1 | angle of the first rotor | -Inf | Inf | motor1_rot | hinge | angle (rad) |
+| 2 | angle of the second rotor | -Inf | Inf | motor2_rot | hinge | angle (rad) |
+| 3 | velocity of the tip along the x-axis | -Inf | Inf | slider1 | slide | velocity (m/s) |
+| 4 | velocity of the tip along the y-axis | -Inf | Inf | slider2 | slide | velocity (m/s) |
+| 5 | angular velocity of front tip | -Inf | Inf | free_body_rot | hinge | angular velocity (rad/s) |
+| 6 | angular velocity of first rotor | -Inf | Inf | motor1_rot | hinge | angular velocity (rad/s) |
+| 7 | angular velocity of second rotor | -Inf | Inf | motor2_rot | hinge | angular velocity (rad/s) |
+| excluded | position of the tip along the x-axis | -Inf | Inf | slider1 | slide | position (m) |
+| excluded | position of the tip along the y-axis | -Inf | Inf | slider2 | slide | position (m) |

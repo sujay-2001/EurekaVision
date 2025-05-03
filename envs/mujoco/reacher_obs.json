@@ -1,0 +1,105 @@
+{
+    "Description": "“Reacher” is a two-jointed robot arm.\nThe goal is to move the robot’s end effector (called fingertip ) close to a target that is spawned at a random position.",
+    "Action Space": "The action space is a Box(-1, 1, (2,), float32) . An action (a, b) represents the torques applied at the hinge joints.",
+    "Observation Space": [
+        {
+            "num": "0",
+            "observation": "cosine of the angle of the first arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "cos(joint0)",
+            "joint": "hinge",
+            "type (unit)": "unitless"
+        },
+        {
+            "num": "1",
+            "observation": "cosine of the angle of the second arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "cos(joint1)",
+            "joint": "hinge",
+            "type (unit)": "unitless"
+        },
+        {
+            "num": "2",
+            "observation": "sine of the angle of the first arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "sin(joint0)",
+            "joint": "hinge",
+            "type (unit)": "unitless"
+        },
+        {
+            "num": "3",
+            "observation": "sine of the angle of the second arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "sin(joint1)",
+            "joint": "hinge",
+            "type (unit)": "unitless"
+        },
+        {
+            "num": "4",
+            "observation": "x-coordinate of the target",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "target_x",
+            "joint": "slide",
+            "type (unit)": "position (m)"
+        },
+        {
+            "num": "5",
+            "observation": "y-coordinate of the target",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "target_y",
+            "joint": "slide",
+            "type (unit)": "position (m)"
+        },
+        {
+            "num": "6",
+            "observation": "angular velocity of the first arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "joint0",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "7",
+            "observation": "angular velocity of the second arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "joint1",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "8",
+            "observation": "x-value of position_fingertip - position_target",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "NA",
+            "joint": "slide",
+            "type (unit)": "position (m)"
+        },
+        {
+            "num": "9",
+            "observation": "y-value of position_fingertip - position_target",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "NA",
+            "joint": "slide",
+            "type (unit)": "position (m)"
+        },
+        {
+            "num": "excluded",
+            "observation": "z-value of position_fingertip - position_target (constantly 0 since reacher is 2d)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "NA",
+            "joint": "slide",
+            "type (unit)": "position (m)"
+        }
+    ]
+}

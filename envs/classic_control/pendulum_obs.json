@@ -1,0 +1,31 @@
+{
+    "Description": "The inverted pendulum swingup problem is based on the classic problem in control theory. The system consists of a pendulum attached at one end to a fixed point, and the other end being free. The pendulum starts in a random position and the goal is to apply torque on the free end to swing it into an upright position, with its center of gravity right above the fixed point.",
+    "Action Space": [
+        {
+            "num": 0,
+            "action": "Torque",
+            "min": "-2.0",
+            "max": "2.0"
+        }
+    ],
+    "Observation Space": [
+        {
+            "num": 0,
+            "observation": "x = cos(theta)",
+            "min": "-1.0",
+            "max": "1.0"
+        },
+        {
+            "num": 1,
+            "observation": "y = sin(theta)",
+            "min": "-1.0",
+            "max": "1.0"
+        },
+        {
+            "num": 2,
+            "observation": "Angular Velocity",
+            "min": "-8.0",
+            "max": "8.0"
+        }
+    ]
+}

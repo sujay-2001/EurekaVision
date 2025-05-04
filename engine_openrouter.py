@@ -158,7 +158,7 @@ def main(cfg):
                     response_content = response_cur["content"]
                 except (KeyError, IndexError, TypeError):
                     logging.error("Could not find assistant content in response: %s", response_cur)
-                response_content = ""
+                    response_content = ""
 
                 
                 logging.info(f"Iteration {iter}: Processing Code Run {total_samples}")

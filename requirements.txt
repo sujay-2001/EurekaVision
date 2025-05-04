@@ -1,7 +1,7 @@
 numpy<2.0.0
 transformers
 gymnasium
-glxv
+glfw
 mujoco
 matplotlib
 openai

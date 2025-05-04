@@ -24,17 +24,19 @@ def get_openrouter_response(url, model, messages, chunk_size, cfg):
         try:
             # Build the payload.
             # Note: If Ollama supported multiple completions with "n", you could include it here.
+            headers = {
+                "Authorization": f"Bearer {cfg.API_KEY}",
+                "Content-Type": "application/json"
+            }
             payload = {
-                "model": model,
-                "messages": messages,
-                "temperature": cfg.models.coder_config.temperature,
-                "stream": False
+                "model": "google/gemini-2.0-flash-001",
+                "messages": messages
             }
             body = json.dumps(payload)
             logging.info("Payload size: %.2f MB", len(body)/1_048_576)
             logging.info(f"Attempt {attempt+1}: Sending request with chunk size {chunk_size}")
             # Send the POST request (make sure the endpoint URL is correct for your installation)
-            response = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=120)
+            response = requests.post(url, json=payload, headers=headers, timeout=120)
             response.raise_for_status()  # Raise an exception for HTTP errors
             response_cur = response.json()
             return response_cur  # Exit the retry loop on success
@@ -97,7 +99,7 @@ def main(cfg):
 
     initial_system = initial_system.format(task_reward_signature_string=reward_signature) + code_output_tip
     initial_user = initial_user.format(task_obs_code_string=task_obs_code_string, task_description=task_description)
-    messages = [{"role": "system", "content": initial_system}, {"role": "user", "content": initial_user}]
+    messages = [{"role": "system", "content": [{'type': 'text', 'text': initial_system}]}, {"role": "user", "content": [{'type': 'text', 'text': initial_user}]}]
 
     #task_code_string = task_code_string.replace(task, task+suffix)
     # Create Task YAML files

@@ -3,6 +3,7 @@ task: 'CartPole'
 env: 'cartpole'
 iteration: 4
 sample: 2
+API_KEY: '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'
 
 # LLM Agents parameters
 # The coder agent is used to generate code based on the feedback from the feedback agent.

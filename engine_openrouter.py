@@ -253,7 +253,7 @@ def main(cfg):
                 traceback_msg = file_to_string(rl_filepath).split("Traceback (most recent call last):")[-1]
                 execution_error_feedback = execution_error_feedback.format(traceback_msg=traceback_msg)
                 new_messages = messages + [{"role": "assistant", "content": [{"type": "text", "text": response_content}]}, {"role": "user", "content": [{"type": "text", "text": execution_error_feedback}]}]
-                response_cur = get_response(url, model, new_messages, cfg)
+                response_cur = get_response(url, model, new_messages, chunk_size, cfg)
                 
             total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
 
@@ -346,7 +346,7 @@ def main(cfg):
         feedback_messages = [{"role": "system", "content": [{"type": "text", "text": feedback_agent_system}]}, 
                              {"role": "user", "content": user_content}]
         
-        response_cur = get_response(url, feedback_agent, feedback_messages, cfg)
+        response_cur = get_response(url, feedback_agent, feedback_messages, chunk_size, cfg)
         
         if response_cur is None:
             logging.info("Terminating due to too many failed attempts!")

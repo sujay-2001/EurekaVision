@@ -1,7 +1,8 @@
 numpy<2.0.0
 transformers
 gymnasium
-gym[mujoco_py]
+glxv
+mujoco
 matplotlib
 openai
 pyyaml

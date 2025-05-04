@@ -122,7 +122,6 @@ class ReacherEnv(MujocoEnv, utils.EzPickle):
         "render_modes": [
             "human",
             "rgb_array",
-            "depth_array",
         ],
         "render_fps": 50,
     }

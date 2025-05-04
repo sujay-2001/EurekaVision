@@ -251,7 +251,7 @@ def main(cfg):
                 traceback_msg = file_to_string(rl_filepath).split("Traceback (most recent call last):")[-1]
                 execution_error_feedback = execution_error_feedback.format(traceback_msg=traceback_msg)
                 new_messages = messages + [{"role": "assistant", "content": response_content}, {"role": "user", "content": execution_error_feedback}]
-                response_cur = get_ollama_response(url, model, new_messages, cfg)
+                response_cur = get_ollama_response(url, model, new_messages, chunk_size, cfg)
                 
             total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
 
@@ -334,9 +334,9 @@ def main(cfg):
         feedback_prompt = feedback_prompt.format(env=env_name, task_description=task_description, summary=summary, reward_function=cur_reward_function)
         images_dir = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_1_Summary"
         images = [encode_image(os.path.join(images_dir,image_path)) for image_path in os.listdir(images_dir) if image_path.endswith('.png')]
-        feedback_messages = [{"role": "system", "content": feedback_agent_system}, {"role": "user", "content": feedback_prompt}]
+        feedback_messages = [{"role": "system", "content": feedback_agent_system}, {"role": "user", "content": feedback_prompt, "images": images}]
         
-        response_cur = get_ollama_response(url, feedback_agent, feedback_messages, cfg)
+        response_cur = get_ollama_response(url, feedback_agent, feedback_messages, chunk_size, cfg)
         
         if response_cur is None:
             logging.info("Terminating due to too many failed attempts!")

@@ -19,7 +19,7 @@ import sys
 EUREKA_ROOT_DIR = os.getcwd()
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def get_openrouter_response(url, model, messages, chunk_size, cfg):
+def get_response(url, model, messages, chunk_size, cfg):
     for attempt in range(1000):
         try:
             # Build the payload.
@@ -29,7 +29,7 @@ def get_openrouter_response(url, model, messages, chunk_size, cfg):
                 "Content-Type": "application/json"
             }
             payload = {
-                "model": "google/gemini-2.0-flash-001",
+                "model": model,
                 "messages": messages
             }
             body = json.dumps(payload)
@@ -137,7 +137,7 @@ def main(cfg):
             if total_samples >= cfg.sample:
                 break
             # Get the response from the LLM
-            response_cur = get_ollama_response(url, model, messages, chunk_size, cfg)
+            response_cur = get_response(url, model, messages, chunk_size, cfg)
 
             while True:
                 if response_cur is None:
@@ -252,8 +252,8 @@ def main(cfg):
                 logging.info("Error in train.py process. Skipping this response.")
                 traceback_msg = file_to_string(rl_filepath).split("Traceback (most recent call last):")[-1]
                 execution_error_feedback = execution_error_feedback.format(traceback_msg=traceback_msg)
-                new_messages = messages + [{"role": "assistant", "content": response_content}, {"role": "user", "content": execution_error_feedback}]
-                response_cur = get_ollama_response(url, model, new_messages, cfg)
+                new_messages = messages + [{"role": "assistant", "content": [{"type": "text", "text": response_content}]}, {"role": "user", "content": [{"type": "text", "text": execution_error_feedback}]}]
+                response_cur = get_response(url, model, new_messages, cfg)
                 
             total_samples += chunk_size  # Increase the sample count by the number returned (here we assume 1 per call)
 
@@ -336,9 +336,17 @@ def main(cfg):
         feedback_prompt = feedback_prompt.format(env=env_name, task_description=task_description, summary=summary, reward_function=cur_reward_function)
         images_dir = f"{cfg.rl.trajectory_dir}/{cfg.rl.train_type}_{best_response_id}/Ep_1_Summary"
         images = [encode_image(os.path.join(images_dir,image_path)) for image_path in os.listdir(images_dir) if image_path.endswith('.png')]
-        feedback_messages = [{"role": "system", "content": feedback_agent_system}, {"role": "user", "content": feedback_prompt}]
+        user_content = [{"type": "text", "text": feedback_prompt}] + [
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{img_b64}"},
+            }
+            for img_b64 in images
+        ]
+        feedback_messages = [{"role": "system", "content": [{"type": "text", "text": feedback_agent_system}]}, 
+                             {"role": "user", "content": user_content}]
         
-        response_cur = get_ollama_response(url, feedback_agent, feedback_messages, cfg)
+        response_cur = get_response(url, feedback_agent, feedback_messages, cfg)
         
         if response_cur is None:
             logging.info("Terminating due to too many failed attempts!")

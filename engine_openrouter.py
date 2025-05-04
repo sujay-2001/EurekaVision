@@ -118,7 +118,7 @@ def main(cfg):
     vision_text_model, processor = load_blip_model()
     
     # Eureka generation loop
-    url = "http://localhost:11434/api/chat"
+    url = "hhttps://openrouter.ai/api/v1/chat/completions"
     for iter in range(cfg.iteration):
         # Get Eureka response
         responses = []
@@ -146,15 +146,20 @@ def main(cfg):
 
                 # If the response includes token usage info, update accumulators.
                 # (This assumes your model provides a similar "usage" field as in OpenAI's API.)
-                if "usage" in response_cur:
-                    prompt_tokens += response_cur["usage"].get("prompt_tokens", 0)
-                    total_completion_tokens += response_cur["usage"].get("completion_tokens", 0)
-                    total_tokens += response_cur["usage"].get("total_tokens", 0)
-                else:
-                    logging.info("No usage information provided in the response.")
+                # --- 1.  Inspect / accumulate token counts -------------------------------
+                prompt_tokens           += response_cur.get("usage", {}).get("prompt_tokens",       0)
+                total_completion_tokens += response_cur.get("usage", {}).get("completion_tokens",  0)
+                total_tokens            += response_cur.get("usage", {}).get("total_tokens",       0)
 
-                response_cur = response_cur.get("message", {})
-                response_content = response_cur['content']
+                # --- 2.  Extract the assistant’s text ------------------------------------
+                # response_cur is still the *whole* response dict here
+                try:
+                    response_cur = response_cur["choices"][0]["message"]
+                    response_content = response_cur["content"]
+                except (KeyError, IndexError, TypeError):
+                    logging.error("Could not find assistant content in response: %s", response_cur)
+                response_content = ""
+
                 
                 logging.info(f"Iteration {iter}: Processing Code Run {total_samples}")
 
@@ -351,7 +356,7 @@ def main(cfg):
         if response_cur is None:
             logging.info("Terminating due to too many failed attempts!")
             exit()
-        response_cur = response_cur.get("message", {})
+        response_cur = response_cur["choices"][0]["message"]
         feedback = response_cur["content"]
 
         with open(f"env_iter{iter}_response{best_response_id}_feedback.txt", 'w') as file:

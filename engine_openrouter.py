@@ -118,7 +118,7 @@ def main(cfg):
     vision_text_model, processor = load_blip_model()
     
     # Eureka generation loop
-    url = "hhttps://openrouter.ai/api/v1/chat/completions"
+    url = "https://openrouter.ai/api/v1/chat/completions"
     for iter in range(cfg.iteration):
         # Get Eureka response
         responses = []

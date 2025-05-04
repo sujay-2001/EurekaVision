@@ -1,7 +1,7 @@
 import numpy as np
 
 from gymnasium import utils
-from envs.mujoco.mujoco_env import MujocoEnv
+from .mujoco_env import MujocoEnv
 from gymnasium.spaces import Box
 from typing import Optional, Union, Tuple, Dict
 

@@ -73,24 +73,6 @@
             "name (in corresponding xml file)": "motor2_rot",
             "joint": "hinge",
             "type (unit)": "angular velocity (rad/s)"
-        },
-        {
-            "num": "excluded",
-            "observation": "position of the tip along the x-axis",
-            "min": "-Inf",
-            "max": "Inf",
-            "name (in corresponding xml file)": "slider1",
-            "joint": "slide",
-            "type (unit)": "position (m)"
-        },
-        {
-            "num": "excluded",
-            "observation": "position of the tip along the y-axis",
-            "min": "-Inf",
-            "max": "Inf",
-            "name (in corresponding xml file)": "slider2",
-            "joint": "slide",
-            "type (unit)": "position (m)"
         }
     ]
 }

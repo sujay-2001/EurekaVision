@@ -7,7 +7,6 @@ import os
 import json
 import numpy as np
 import gymnasium as gym
-import pygame
 from stable_baselines3 import DQN, PPO, A2C
 from stable_baselines3.common.utils import set_random_seed
 import matplotlib.pyplot as plt
@@ -15,6 +14,9 @@ import importlib
 from PIL import Image
 import logging
 from collections import defaultdict
+from pathlib import Path
+from typing import Dict, List
+import stable_baselines3 as sb3
 
 FLAGS = flags.FLAGS
 
@@ -154,7 +156,7 @@ def plot_transitions_and_save_prompt(obs_path, episode_rewards, reward_component
     with open(obs_path, "r") as f:
         obs_data = json.load(f)
     for state_data in obs_data['Observation Space']:
-        idx = state_data['num']
+        idx = int(state_data['num']) if type(state_data['num']) is str else state_data['num']
         state = state_data['observation']
         title = state + " transition"
         plt.figure()
@@ -194,7 +196,7 @@ def plot_transitions_and_save_prompt(obs_path, episode_rewards, reward_component
             
         f.write("States:\n")  # Add states if desired (consider potential file size)        
         for state_data in obs_data['Observation Space']:
-            idx = state_data['num']
+            idx = int(state_data['num']) if type(state_data['num']) is str else state_data['num']
             state = state_data['observation']
             state_max = max(states[:, idx])
             state_min = min(states[:, idx])
@@ -207,82 +209,115 @@ def plot_transitions_and_save_prompt(obs_path, episode_rewards, reward_component
             f.write(f"Variance of {state}: {state_var}\n")
     pass
 
+# ---------------------------------------------------------------------------
+def _save_frame(env: gym.Env, directory: Path, idx: int) -> None:
+    """Render the env to an RGB array and save as PNG."""
+    frame = env.render()               # returns H×W×3 uint8
+    if frame is not None:
+        Image.fromarray(frame).save(directory / f"{idx:06d}.png")
+        
 def _test_env(
     env: gym.Env,
-    agent: str = "DQN", 
-    model_path: str = "./tmp/test",
-    trajectory_dir: str = "/tmp/test-trajectory/",
-    obs_path: str = "./../envs/acrobot_obs.json",
+    agent_name: str = "PPO",
+    model_path: str = "./tmp/test.zip",
+    trajectory_dir: str = "/tmp/test-trajectory",
+    obs_path: str | None = None,              # optional (used by your plot fn)
     render: bool = True,
-    n_episodes: int = 1
-):
-    # Define the agent
-    if agent == "DQN":
-        agent = DQN.load(model_path)
-    elif agent == "PPO":
-        agent = PPO.load(model_path)
-    elif agent == "A2C":
-        agent = A2C.load(model_path)
-    else:
-        raise ValueError(f"Unsupported agent: {agent}")
+    n_episodes: int = 1,
+    device: str = "cpu",                      # "cuda" if you really want GPU
+) -> np.ndarray:
+    """
+    Evaluate a trained SB3 agent on `env` and (optionally) save a frame‑by‑frame
+    trajectory as PNG images.
 
-    # Store the metrics
-    ep_rewards = np.zeros(n_episodes)
-    if not os.path.exists(trajectory_dir):
-        os.makedirs(trajectory_dir)
+    Returns
+    -------
+    np.ndarray
+        Episode rewards, shape (n_episodes,)
+    """
+    # ------------------------------------------------------------------ 0. SDL dummy backend for Colab / head‑less
+    if render and os.getenv("SDL_VIDEODRIVER") is None:
+        os.environ["SDL_VIDEODRIVER"] = "dummy"
+        os.environ["SDL_AUDIODRIVER"] = "dummy"
 
-    # Begin Testing
-    quitted = False
-    for i in range(n_episodes):
-        if quitted:
-            break
-        obs, _ = env.reset()        
+    import pygame                      # after env vars are set
+    pygame.display.init()
+    pygame.display.set_mode((1, 1))    # 1×1 hidden window
+
+    # ------------------------------------------------------------------ 1. Load the agent
+    algo_cls: Dict[str, sb3.common.base_class.BaseAlgorithm] = {
+        "DQN": sb3.DQN,
+        "PPO": sb3.PPO,
+        "A2C": sb3.A2C,
+    }
+    if agent_name not in algo_cls:
+        raise ValueError(f"Unsupported agent: {agent_name}")
+    agent = algo_cls[agent_name].load(model_path, device=device)
+
+    # ------------------------------------------------------------------ 2. I/O dirs
+    model_stem = Path(model_path).with_suffix("").name
+    base_eval_dir = Path(trajectory_dir) / model_stem
+    base_eval_dir.mkdir(parents=True, exist_ok=True)
+
+    # ------------------------------------------------------------------ 3. Evaluate
+    ep_rewards = np.zeros(n_episodes, dtype=np.float32)
+
+    for ep in range(n_episodes):
+        obs, _ = env.reset()
         rewards, states, actions = [], [], []
-        reward_components_metrics = defaultdict(list)
-        terminated = False
-        truncated = False
-        base_name = os.path.basename(model_path)      
-        model_name, _ = os.path.splitext(base_name) 
-        eval_dir = os.path.join(trajectory_dir, model_name)
-        curr_ep_summary_dir = os.path.join(eval_dir, f"Ep_{i+1}_Summary")
-        curr_trajectory_dir = os.path.join(eval_dir, f"Ep_{i+1}_Trajectory")
-        os.makedirs(curr_trajectory_dir, exist_ok=True)
-        os.makedirs(curr_ep_summary_dir, exist_ok=True)
-        
-        ind = 0
-        if render:
-            img_arr = env.render()
-            img_pil = Image.fromarray(img_arr, 'RGB')
-            img_pil.save(f"{curr_trajectory_dir}/{ind}.png")
-            ind += 1
+        reward_components_metrics: Dict[str, List[float]] = defaultdict(list)
+
+        ep_dir = base_eval_dir / f"Ep_{ep + 1}_Trajectory"
+        sum_dir = base_eval_dir / f"Ep_{ep + 1}_Summary"
+        ep_dir.mkdir(exist_ok=True, parents=True)
+        sum_dir.mkdir(exist_ok=True, parents=True)
+
+        frame_idx = 0
+        terminated = truncated = False
+
+        # -- initial frame ------------------------------------------------
+        if render and env.render_mode == "rgb_array":
+            _save_frame(env, ep_dir, frame_idx)
+            frame_idx += 1
+
         while not (terminated or truncated):
             action, _ = agent.predict(obs, deterministic=True)
             obs, reward, terminated, truncated, _ = env.step(action)
-            reward_components = env.env.reward_components
-            for k in reward_components:
-                reward_components_metrics[k].append(reward_components[k])
+
+            # gather metrics
             rewards.append(reward)
             states.append(obs)
             actions.append(action)
-            if render:
-                img_arr = env.render()
-                img_pil = Image.fromarray(img_arr, 'RGB')
-                img_pil.save(f"{curr_trajectory_dir}/{ind}.png")
 
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.display.quit()
-                        pygame.quit()
-                        return ep_rewards
-        
-            ep_rewards[i] += reward
-            ind += 1
-        plot_transitions_and_save_prompt(obs_path, rewards, reward_components_metrics, states, curr_ep_summary_dir)
+            # your env stores a dict called reward_components
+            rc = getattr(env.unwrapped, "reward_components", None)
+            if rc:
+                for k, v in rc.items():
+                    reward_components_metrics[k].append(v)
+
+            # save frame
+            if render and env.render_mode == "rgb_array":
+                _save_frame(env, ep_dir, frame_idx)
+                frame_idx += 1
+
+        ep_rewards[ep] = sum(rewards)
+
+        # your custom summary plot function
+        if obs_path is not None:
+            plot_transitions_and_save_prompt(
+                obs_path,
+                rewards,
+                reward_components_metrics,
+                states,
+                sum_dir,
+            )
 
     env.close()
+    pygame.display.quit()
+    pygame.quit()
     return ep_rewards
 
-    
+# ---------------------------------------------------------------------------
 
 def main(_):
     # Set the random seed for reproducibility
@@ -316,12 +351,13 @@ def main(_):
     agent = FLAGS.model_name.split("_")[0]
     ep_rewards = _test_env(
         env=env_instance, 
-        agent=agent, 
+        agent_name=agent, 
         model_path=os.path.join(FLAGS.model_path, FLAGS.model_name), 
         trajectory_dir=FLAGS.trajectory_dir,
         obs_path=obs_path,
         render=FLAGS.render,
-        n_episodes=FLAGS.testing_episodes
+        n_episodes=FLAGS.testing_episodes,
+        device='cuda'
     )
     logging.info("Evaluation completed.") 
     logging.info("Episode rewards: %s", ep_rewards)

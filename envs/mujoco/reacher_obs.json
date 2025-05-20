@@ -91,15 +91,6 @@
             "name (in corresponding xml file)": "NA",
             "joint": "slide",
             "type (unit)": "position (m)"
-        },
-        {
-            "num": "excluded",
-            "observation": "z-value of position_fingertip - position_target (constantly 0 since reacher is 2d)",
-            "min": "-Inf",
-            "max": "Inf",
-            "name (in corresponding xml file)": "NA",
-            "joint": "slide",
-            "type (unit)": "position (m)"
         }
     ]
 }

@@ -146,12 +146,7 @@ def main(cfg):
 
                 # If the response includes token usage info, update accumulators.
                 # (This assumes your model provides a similar "usage" field as in OpenAI's API.)
-                # --- 1.  Inspect / accumulate token counts -------------------------------
-                prompt_tokens           += response_cur.get("usage", {}).get("prompt_tokens",       0)
-                total_completion_tokens += response_cur.get("usage", {}).get("completion_tokens",  0)
-                total_tokens            += response_cur.get("usage", {}).get("total_tokens",       0)
-
-                # --- 2.  Extract the assistant’s text ------------------------------------
+                # --- 1.  Extract the assistant’s text ------------------------------------
                 # response_cur is still the *whole* response dict here
                 try:
                     response_cur = response_cur["choices"][0]["message"]

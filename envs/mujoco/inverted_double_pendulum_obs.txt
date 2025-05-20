@@ -1,0 +1,26 @@
+### Description
+This environment originates from control theory and builds on the cartpole environment based on the work of Barto, Sutton, and Anderson in “Neuronlike adaptive elements that can solve difficult learning control problems” ,
+powered by the Mujoco physics simulator - allowing for more complex experiments (such as varying the effects of gravity or constraints).
+This environment involves a cart that can be moved linearly, with one pole attached to it and a second pole attached to the other end of the first pole (leaving the second pole as the only one with a free end).
+The cart can be pushed left or right, and the goal is to balance the second pole on top of the first pole, which is in turn on top of the cart, by applying continuous forces to the cart.
+
+### Action Space
+The agent take a 1-element vector for actions.
+The action space is a continuous (action) in [-1, 1] , where action represents the
+numerical force applied to the cart (with magnitude representing the amount of force and
+sign representing the direction)
+
+### Observation Space
+| Num | Observation | Min | Max | Name (in corresponding XML file) | Joint | Type (Unit) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | position of the cart along the linear surface | -Inf | Inf | slider | slide | position (m) |
+| 1 | sine of the angle between the cart and the first pole | -Inf | Inf | sin(hinge) | hinge | unitless |
+| 2 | sine of the angle between the two poles | -Inf | Inf | sin(hinge2) | hinge | unitless |
+| 3 | cosine of the angle between the cart and the first pole | -Inf | Inf | cos(hinge) | hinge | unitless |
+| 4 | cosine of the angle between the two poles | -Inf | Inf | cos(hinge2) | hinge | unitless |
+| 5 | velocity of the cart | -Inf | Inf | slider | slide | velocity (m/s) |
+| 6 | angular velocity of the angle between the cart and the first pole | -Inf | Inf | hinge | hinge | angular velocity (rad/s) |
+| 7 | angular velocity of the angle between the two poles | -Inf | Inf | hinge2 | hinge | angular velocity (rad/s) |
+| 8 | constraint force - x | -Inf | Inf | slider | slide | Force (N) |
+| excluded | constraint force - y | -Inf | Inf | slider | slide | Force (N) |
+| excluded | constraint force - z | -Inf | Inf | slider | slide | Force (N) |

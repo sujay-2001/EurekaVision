@@ -1,0 +1,87 @@
+{
+    "Description": "This environment originates from control theory and builds on the cartpole environment based on the work of Barto, Sutton, and Anderson in “Neuronlike adaptive elements that can solve difficult learning control problems” ,\npowered by the Mujoco physics simulator - allowing for more complex experiments (such as varying the effects of gravity or constraints).\nThis environment involves a cart that can be moved linearly, with one pole attached to it and a second pole attached to the other end of the first pole (leaving the second pole as the only one with a free end).\nThe cart can be pushed left or right, and the goal is to balance the second pole on top of the first pole, which is in turn on top of the cart, by applying continuous forces to the cart.",
+    "Action Space": "The agent take a 1-element vector for actions.\nThe action space is a continuous (action) in [-1, 1] , where action represents the\nnumerical force applied to the cart (with magnitude representing the amount of force and\nsign representing the direction)",
+    "Observation Space": [
+        {
+            "num": "0",
+            "observation": "position of the cart along the linear surface",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "slider",
+            "joint": "slide",
+            "type (unit)": "position (m)"
+        },
+        {
+            "num": "1",
+            "observation": "sine of the angle between the cart and the first pole",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "sin(hinge)",
+            "joint": "hinge",
+            "type (unit)": "unitless"
+        },
+        {
+            "num": "2",
+            "observation": "sine of the angle between the two poles",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "sin(hinge2)",
+            "joint": "hinge",
+            "type (unit)": "unitless"
+        },
+        {
+            "num": "3",
+            "observation": "cosine of the angle between the cart and the first pole",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "cos(hinge)",
+            "joint": "hinge",
+            "type (unit)": "unitless"
+        },
+        {
+            "num": "4",
+            "observation": "cosine of the angle between the two poles",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "cos(hinge2)",
+            "joint": "hinge",
+            "type (unit)": "unitless"
+        },
+        {
+            "num": "5",
+            "observation": "velocity of the cart",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "slider",
+            "joint": "slide",
+            "type (unit)": "velocity (m/s)"
+        },
+        {
+            "num": "6",
+            "observation": "angular velocity of the angle between the cart and the first pole",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "hinge",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "7",
+            "observation": "angular velocity of the angle between the two poles",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "hinge2",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "8",
+            "observation": "constraint force - x",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "slider",
+            "joint": "slide",
+            "type (unit)": "Force (N)"
+        }
+    ]
+}

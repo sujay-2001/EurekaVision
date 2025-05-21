@@ -1,0 +1,411 @@
+{
+    "Description": "This environment is based on the environment introduced by Tassa, Erez and Todorov in “Synthesis and stabilization of complex behaviors through online trajectory optimization” .\nThe 3D bipedal robot is designed to simulate a human.\nIt has a torso (abdomen) with a pair of legs and arms, and a pair of tendons connecting the hips to the knees.\nThe legs each consist of three body parts (thigh, shin, foot), and the arms consist of two body parts (upper arm, forearm).\nThe goal of the environment is to walk forward as fast as possible without falling over.",
+    "Action Space": "The action space is a Box(-0.4, 0.4, (17,), float32) . An action represents the torques applied at the hinge joints.",
+    "Observation Space": [
+        {
+            "num": "0",
+            "observation": "z-coordinate of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "position (m)"
+        },
+        {
+            "num": "1",
+            "observation": "w-orientation of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "2",
+            "observation": "x-orientation of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "3",
+            "observation": "y-orientation of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "4",
+            "observation": "z-orientation of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "5",
+            "observation": "z-angle of the abdomen (in lower_waist)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "abdomen_z",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "6",
+            "observation": "y-angle of the abdomen (in lower_waist)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "abdomen_y",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "7",
+            "observation": "x-angle of the abdomen (in pelvis)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "abdomen_x",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "8",
+            "observation": "x-coordinate of angle between pelvis and right hip (in right_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_hip_x",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "9",
+            "observation": "z-coordinate of angle between pelvis and right hip (in right_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_hip_z",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "10",
+            "observation": "y-coordinate of angle between pelvis and right hip (in right_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_hip_y",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "11",
+            "observation": "angle between right hip and the right shin (in right_knee)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_knee",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "12",
+            "observation": "x-coordinate of angle between pelvis and left hip (in left_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_hip_x",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "13",
+            "observation": "z-coordinate of angle between pelvis and left hip (in left_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_hip_z",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "14",
+            "observation": "y-coordinate of angle between pelvis and left hip (in left_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_hip_y",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "15",
+            "observation": "angle between left hip and the left shin (in left_knee)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_knee",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "16",
+            "observation": "coordinate-1 (multi-axis) angle between torso and right arm (in right_upper_arm)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_shoulder1",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "17",
+            "observation": "coordinate-2 (multi-axis) angle between torso and right arm (in right_upper_arm)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_shoulder2",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "18",
+            "observation": "angle between right upper arm and right_lower_arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_elbow",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "19",
+            "observation": "coordinate-1 (multi-axis) angle between torso and left arm (in left_upper_arm)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_shoulder1",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "20",
+            "observation": "coordinate-2 (multi-axis) angle between torso and left arm (in left_upper_arm)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_shoulder2",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "21",
+            "observation": "angle between left upper arm and left_lower_arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_elbow",
+            "joint": "hinge",
+            "type (unit)": "angle (rad)"
+        },
+        {
+            "num": "22",
+            "observation": "x-coordinate velocity of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "velocity (m/s)"
+        },
+        {
+            "num": "23",
+            "observation": "y-coordinate velocity of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "velocity (m/s)"
+        },
+        {
+            "num": "24",
+            "observation": "z-coordinate velocity of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "velocity (m/s)"
+        },
+        {
+            "num": "25",
+            "observation": "x-coordinate angular velocity of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "26",
+            "observation": "y-coordinate angular velocity of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "27",
+            "observation": "z-coordinate angular velocity of the torso (centre)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "root",
+            "joint": "free",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "28",
+            "observation": "z-coordinate of angular velocity of the abdomen (in lower_waist)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "abdomen_z",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "29",
+            "observation": "y-coordinate of angular velocity of the abdomen (in lower_waist)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "abdomen_y",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "30",
+            "observation": "x-coordinate of angular velocity of the abdomen (in pelvis)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "abdomen_x",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "31",
+            "observation": "x-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_hip_x",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "32",
+            "observation": "z-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_hip_z",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "33",
+            "observation": "y-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_hip_y",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "34",
+            "observation": "angular velocity of the angle between right hip and the right shin (in right_knee)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_knee",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "35",
+            "observation": "x-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_hip_x",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "36",
+            "observation": "z-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_hip_z",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "37",
+            "observation": "y-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_hip_y",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "38",
+            "observation": "angular velocity of the angle between left hip and the left shin (in left_knee)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_knee",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "39",
+            "observation": "coordinate-1 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_shoulder1",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "40",
+            "observation": "coordinate-2 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_shoulder2",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "41",
+            "observation": "angular velocity of the angle between right upper arm and right_lower_arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "right_elbow",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "42",
+            "observation": "coordinate-1 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_shoulder1",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "43",
+            "observation": "coordinate-2 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_shoulder2",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        },
+        {
+            "num": "44",
+            "observation": "angular velocity of the angle between left upper arm and left_lower_arm",
+            "min": "-Inf",
+            "max": "Inf",
+            "name (in corresponding xml file)": "left_elbow",
+            "joint": "hinge",
+            "type (unit)": "angular velocity (rad/s)"
+        }
+    ]
+}

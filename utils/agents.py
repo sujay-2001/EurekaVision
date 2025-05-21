@@ -37,6 +37,10 @@ env_description= {
     "goal": "three links swimmer near the right end",
     "baseline": "three links swimmer"
 },
+"humanoid": {
+    "goal": "humanoid walking",
+    "baseline": "humanoid"
+},
 }
 
 def get_frames(frames_dir):    
